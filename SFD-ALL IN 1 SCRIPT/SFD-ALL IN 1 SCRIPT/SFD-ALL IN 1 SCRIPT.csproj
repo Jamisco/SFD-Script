@@ -52,7 +52,6 @@
     <Compile Include="Jamisco.cs" />
     <Compile Include="Jamisco_DM.cs" />
     <Compile Include="KilaKrill.cs" />
-    <Compile Include="All_In_One.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="The_Gunner%28AI%29.cs" />
   </ItemGroup>
