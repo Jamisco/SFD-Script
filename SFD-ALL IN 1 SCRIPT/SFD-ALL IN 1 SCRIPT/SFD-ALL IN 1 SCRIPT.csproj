@@ -32,8 +32,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="SFD.GameScriptInterface">
-      <HintPath>..\..\..\..\..\..\..\Dll folders\SFD.GameScriptInterface.dll</HintPath>
+    <Reference Include="SFD.GameScriptInterface, Version=1.0.0.0, Culture=neutral, PublicKeyToken=8bdb85aa7617c01e, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>.\SFD.GameScriptInterface.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -57,6 +58,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="SFD.GameScriptInterface.dll" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
