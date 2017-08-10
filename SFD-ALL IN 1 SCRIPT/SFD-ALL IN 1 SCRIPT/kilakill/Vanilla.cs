@@ -116,22 +116,35 @@ namespace SFDFramework
                     else if (textObject.GetTextColor().Equals(Color.Yellow))
                         textObject.SetTextColor(Color.Blue);
                 } else if (textObject != null) textObject.Remove();
+
                 if (Game.IsGameOver)
                 {
-                    PlayerTeam winner = PlayerTeam.Independent;
-                    bool flag = true;
+                    PlayerTeam winnerTeam = PlayerTeam.Independent; // every time the game is over this would be reset
+                    bool flag = true;                               // so your second if statement in the bottom is useless
                     foreach (IPlayer player in Game.GetPlayers())
                     {
-                        if (player.IsDead) continue;
-                        if (winner == PlayerTeam.Independent && player.GetTeam() != winner) { winner = player.GetTeam(); continue; }
-                        if (player.GetTeam() != winner) { flag = false; break; }
+                        if (player.IsDead)
+                        {
+                            continue;
+                        }
+
+                        if (winnerTeam == PlayerTeam.Independent && player.GetTeam() != winnerTeam)
+                        {
+                            winnerTeam = player.GetTeam();
+                            continue;
+                        }
+                        if (player.GetTeam() != winnerTeam)
+                        {
+                            flag = false;
+                            break;
+                        }
                     }
                     if (flag)
                     {
-                        if (winner == PlayerTeam.Team1) data[0] = (Convert.ToUInt32(data[0]) + 1).ToString();
-                        else if (winner == PlayerTeam.Team2) data[1] = (Convert.ToUInt32(data[1]) + 1).ToString();
-                        else if (winner == PlayerTeam.Team3) data[2] = (Convert.ToUInt32(data[2]) + 1).ToString();
-                        else if (winner == PlayerTeam.Team4) data[3] = (Convert.ToUInt32(data[3]) + 1).ToString();
+                        if (winnerTeam == PlayerTeam.Team1) data[0] = (Convert.ToUInt32(data[0]) + 1).ToString();
+                        else if (winnerTeam == PlayerTeam.Team2) data[1] = (Convert.ToUInt32(data[1]) + 1).ToString();
+                        else if (winnerTeam == PlayerTeam.Team3) data[2] = (Convert.ToUInt32(data[2]) + 1).ToString();
+                        else if (winnerTeam == PlayerTeam.Team4) data[3] = (Convert.ToUInt32(data[3]) + 1).ToString();
                         Game.Data = string.Join(":", data);
                         m_updateEvent.Stop();
                         m_updateEvent = null;

@@ -5,13 +5,14 @@ using System.Text;
 using System.Threading.Tasks;
 using SFDGameScriptInterface;
 
-namespace SFD_ALL_IN_1_SCRIPT
+namespace SFD_ALL_IN_1_SCRIPT.Jamisco
 {
-    class Round_Data : GameScriptInterface
+    class Death_Battle : GameScriptInterface
     {
-        public Round_Data() : base(null) { }
+        public Death_Battle() : base(null) { }
 
-        #region Round Data
+        #region DEATH BATTLE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
         // SIGNATURE
         //            _____                            _____                            _____                            _____                  
         //           /\    \                          /\    \                          /\    \                          /\    \                 
@@ -58,45 +59,86 @@ namespace SFD_ALL_IN_1_SCRIPT
         //                           \/____/                          \/____/                                                                   
         //                                                                                                                                                                                                                                                                           
 
-        static string round_data;
-        static  List<PlayerTeam> Team = new List<PlayerTeam>();
-        static List<int> roundsWon = new List<int>();
-        IObjectTimerTrigger timerTrigger;
-        Events.PlayerDeathCallback m_playerDeathEvent = null;
-
         public void OnStartup()
         {
-            Game.SetMapType(MapType.Custom);
-            timerTrigger = (IObjectTimerTrigger)Game.CreateObject("TimerTrigger");
-            IObjectText round_text_msg = (IObjectText)Game.CreateObject("text");
-            m_playerDeathEvent = Events.PlayerDeathCallback.Start(OnPlayerDeath);
+
+            test();
         }
 
-        public void OnPlayerDeath(IPlayer PLYR)
+        public void test()
         {
-            GameOver();
-        }
-
-        public void GameOver()
-        {
-            IPlayer winner = null;      
-            if (Game.GetPlayers().Length == 1)
+            List<IPlayer> plyr = new List<IPlayer>();
+            foreach (IPlayer plyrs in Game.GetPlayers())
             {
-                foreach (IPlayer plyr in Game.GetPlayers())
+                plyr.Add(plyrs);
+            }
+
+            new DeathBattle(plyr[0], plyr[1]);
+        }
+
+        public class DeathBattle
+        {
+
+            Queue<IUser> Wait_Q = new Queue<IUser>();
+            List<IPlayer> Contestants = new List<IPlayer>(2);
+            List<Vector2> DuelPos = new List<Vector2> { new Vector2(-50, 0), new Vector2(50, 0) };
+            IObjectText round_text_msg = (IObjectText)Game.CreateObject("text");
+            Events.UpdateCallback update = null;
+
+            public DeathBattle(IPlayer plyr1, IPlayer plyr2)
+            {
+                Game.ShowPopupMessage("hi");
+                Contestants.Add(plyr1);
+                Contestants.Add(plyr2);
+                Ready_Contestants();
+            }
+
+            public void Ready_Contestants()
+            {
+                foreach (IPlayer plyr in Contestants)
                 {
-                    winner = plyr;
-                    if (!Team.Contains(plyr.GetTeam()))
-                    {
-                        Team.Add(winner.GetTeam());
-                        roundsWon.Add(0);
-                    }
-                    roundsWon.Insert(Team.IndexOf(winner.GetTeam()), roundsWon.ElementAt(Team.IndexOf(winner.GetTeam())));
+                    plyr.SetWorldPosition(DuelPos.First());
+                    DuelPos.Remove(DuelPos.First());
+                    plyr.SetInputEnabled(false);
                 }
-                Game.SetGameOver(winner.GetTeam().ToString() + " Won The Game" + " :" 
-                            + roundsWon[Team.IndexOf(winner.GetTeam())].ToString() + " Times"); 
+                round_text_msg.SetTextScale(3);
+                round_text_msg.SetTextAlignment(TextAlignment.Middle);
+                round_text_msg.SetTextColor(Color.Green);
+                round_text_msg.SetWorldPosition(new Vector2(0, 50));
+                round_text_msg.SetText("Fighters, Geeeeettt, Readyyyyy!!!!");
+                update = Events.UpdateCallback.Start(Fight_Message, 5000, 1);
+            }
+
+            public void Fight_Message(float elapsed)
+            {
+                round_text_msg.SetTextScale(4);
+                round_text_msg.SetTextAlignment(TextAlignment.Middle);
+                round_text_msg.SetTextColor(Color.Yellow);
+                round_text_msg.SetWorldPosition(new Vector2(0, 50));
+                round_text_msg.SetText("May the Best Fighter Win");
+                update = Events.UpdateCallback.Start(Fight, 5000, 1);
+            }
+
+            public void Fight(float elapsed)
+            {
+                round_text_msg.SetTextScale(5);
+                round_text_msg.SetTextColor(Color.Red);
+                round_text_msg.SetText("FIGHT");
+                update = Events.UpdateCallback.Start(Begin_Fight, 500, 1);
+            }
+            public void Begin_Fight(float elapsed)
+            {
+                round_text_msg.Destroy();
+                foreach(IPlayer plyr in Game.GetPlayers())
+                {
+                    plyr.SetInputEnabled(true);
+                }
             }
         }
 
+
+
         #endregion
+
     }
 }
