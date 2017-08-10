@@ -13,6 +13,7 @@ namespace SFDConsoleApplication1
         public DeathMatch() : base(null) { }
 
         #region
+        // SIGNATURE
 //            _____                            _____                            _____                    _____                  
 //           /\    \                          /\    \                          /\    \                  /\    \                 
 //          /::\____\                        /::\    \                        /::\____\                /::\    \                
@@ -57,12 +58,15 @@ namespace SFDConsoleApplication1
 //          \:|   |                          \::/    /                        \::/    /                \::/    /                
 //           \|___|                           \/____/                          \/____/                  \/____/                 
 //                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 
-
         public void OnStartup()
         {
             new DeathMatchPlugin();
         }
 
+        public static void Gameover()
+        {
+
+        }
         public class DeathMatchPlugin
         {
             const int TIME_TO_REVIVE = 5000;
@@ -72,7 +76,7 @@ namespace SFDConsoleApplication1
             Events.UpdateCallback m_updateEvent = null;
             float m_totalElapsed = 0f;
 
-            List<deadPlayer> deadPlayers = new List<deadPlayer>(8);
+            List<deadPlayer> deadPlayers = new List<deadPlayer>();
             Random rnd = new Random();
             public struct deadPlayer
             {
@@ -89,8 +93,9 @@ namespace SFDConsoleApplication1
 
             public void Revive(float elapsed)
             {
-                deadPlayer player = deadPlayers[0]; deadPlayers.RemoveAt(0);
-                if (player.user == null) return;
+                deadPlayer player = deadPlayers[0];
+                deadPlayers.RemoveAt(0);
+                if (player.user == null || player.user.GetPlayer() == null) return;
                 IObject[] respawns = Game.GetObjectsByName("SpawnPlayer");
                 IPlayer revivedPlayer = Game.CreatePlayer(respawns[rnd.Next(respawns.Length)].GetWorldPosition());
                 revivedPlayer.SetUser(player.user);
