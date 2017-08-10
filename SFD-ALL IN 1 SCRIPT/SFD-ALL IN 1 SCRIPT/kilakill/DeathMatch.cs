@@ -94,7 +94,8 @@ namespace SFDFramework
             {
                 deadPlayer player = deadPlayers[0];
                 deadPlayers.RemoveAt(0);
-                if (player.user == null || player.user.GetPlayer() == null) return;
+                if (player.user == null) return;
+                if (player.user.GetPlayer() != null) player.user.GetPlayer().Remove();
                 IObject[] respawns = Game.GetObjectsByName("SpawnPlayer");
                 IPlayer revivedPlayer = Game.CreatePlayer(respawns[rnd.Next(respawns.Length)].GetWorldPosition());
                 revivedPlayer.SetUser(player.user);
