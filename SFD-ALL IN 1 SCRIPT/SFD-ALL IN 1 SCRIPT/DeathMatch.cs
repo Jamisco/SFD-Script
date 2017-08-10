@@ -65,13 +65,10 @@ namespace SFDConsoleApplication1
 
         public class DeathMatchPlugin
         {
-            const int TIME_TO_REVIVE = 5000;
+            uint TIME_TO_REVIVE;
             const MapType MAP_TYPE = MapType.Custom;
-
             Events.PlayerDeathCallback OnDeath = null;
             Events.UpdateCallback m_updateEvent = null;
-            float m_totalElapsed = 0f;
-
             List<deadPlayer> deadPlayers = new List<deadPlayer>(8);
             Random rnd = new Random();
             public struct deadPlayer
@@ -80,8 +77,9 @@ namespace SFDConsoleApplication1
                 public PlayerTeam team { get; set; }
             }
 
-            public DeathMatchPlugin()
+            public DeathMatchPlugin(uint TimeToRevive = 5000)
             {
+                TIME_TO_REVIVE = TimeToRevive;
                 Game.SetMapType(MAP_TYPE);
                 Game.DeathSequenceEnabled = false;
                 OnDeath = Events.PlayerDeathCallback.Start(OnPlayerDeath);
