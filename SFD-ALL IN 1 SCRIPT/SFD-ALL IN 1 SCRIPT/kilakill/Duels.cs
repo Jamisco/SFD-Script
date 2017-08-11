@@ -1,16 +1,15 @@
 ﻿using System;
-using System.Linq;
-using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
-using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using SFDGameScriptInterface;
 
-namespace SFDFramework
+namespace SFD_ALL_IN_1_SCRIPT.Jamisco
 {
-    class DeathMatch : GameScriptInterface
+    class Duels : GameScriptInterface
     {
-        public DeathMatch() : base(null) { }
+        public Duels() : base(null) { }
 
         #region
         // SIGNATURE
@@ -57,69 +56,78 @@ namespace SFDFramework
         //         \::|   |                         \:::\____\                       \:::\____\               \:::\____\                
         //          \:|   |                          \::/    /                        \::/    /                \::/    /                
         //           \|___|                           \/____/                          \/____/                  \/____/                 
-//                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 
+        //                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 
 
         public void OnStartup()
         {
-            new DeathMatchPlugin();
+            new DuelsPlugin();
         }
 
-        public static void Gameover()
+        public class DuelsPlugin
         {
-
-        }
-
-        public class DeathMatchPlugin
-        {
-            uint TIME_TO_REVIVE;
-            Events.PlayerDeathCallback m_playerDeathEvent = null;
-            Events.UpdateCallback m_updateEvent = null;
-            List<deadPlayer> deadPlayers = new List<deadPlayer>(8);
+            Events.PlayerDeathCallback m_deathEvent = null;
+            //Events.UpdateCallback m_updateEvent = null;
+            IObjectText textObject = Game.CreateObject("Text") as IObjectText;
+            List<IUser> users = new List<IUser>(8);
             Random rnd = new Random();
-            public struct deadPlayer
-            {
-                public IUser user { get; set; }
-                public PlayerTeam team { get; set; }
-            }
 
-            public DeathMatchPlugin(uint TimeToRevive = 5000)
+            public DuelsPlugin()
             {
-                TIME_TO_REVIVE = TimeToRevive;
                 Game.SetMapType(MapType.Custom);
-                Game.DeathSequenceEnabled = false;
-                m_playerDeathEvent = Events.PlayerDeathCallback.Start(OnPlayerDeath);
-                m_updateEvent = Events.UpdateCallback.Start((elapsed) => {
-                    foreach (IUser user in Game.GetActiveUsers())
-                    {
-                        if (user.GetPlayer() != null) continue;
-                        if (deadPlayers.Find(x => x.user == user).user != null) continue;
-                        deadPlayers.Add(new deadPlayer { user = user, team = PlayerTeam.Independent });
-                        Events.UpdateCallback.Start(Revive, TIME_TO_REVIVE, 1);
-                    }
-                }, 1000);
+                textObject.SetTextScale(2);
+                textObject.SetTextColor(Color.Magenta);
+                textObject.SetTextAlignment(TextAlignment.Middle);
+                textObject.SetWorldPosition(Vector2.Zero + new Vector2(0, Game.GetCameraMaxArea().Top - 100));
+                foreach (IUser user in Game.GetActiveUsers())
+                    users.Add(user);
+                foreach (IPlayer player in Game.GetPlayers())
+                    player.Remove();
+                StartDuel();
             }
 
-            public void Revive(float elapsed)
+            public void StartDuel()
             {
-                deadPlayer player = deadPlayers[0];
-                deadPlayers.RemoveAt(0);
-                if (player.user == null) return;
-                if (player.user.GetPlayer() != null) player.user.GetPlayer().Remove();
-                IObject[] respawns = Game.GetObjectsByName("SpawnPlayer");
-                IPlayer revivedPlayer = Game.CreatePlayer(respawns[rnd.Next(respawns.Length)].GetWorldPosition());
-                revivedPlayer.SetUser(player.user);
-                revivedPlayer.SetProfile(player.user.GetProfile());
-                revivedPlayer.SetTeam(player.team);
+                if (users.Count > 1)
+                {
+                    IObject[] spawners = Game.GetObjectsByName("SpawnPlayer");
+                    int one = rnd.Next(spawners.Length), two = rnd.Next(spawners.Length);
+                    if (spawners.Length > 1)
+                        while (one == two) two = rnd.Next(spawners.Length);
+                    IPlayer newPlayer = Game.CreatePlayer(spawners[one].GetWorldPosition());
+                    newPlayer.SetUser(users[0]); newPlayer.SetProfile(users[0].GetProfile());
+                    newPlayer = Game.CreatePlayer(spawners[two].GetWorldPosition());
+                    newPlayer.SetUser(users[1]); newPlayer.SetProfile(users[1].GetProfile());
+                    textObject.SetTextColor(Color.Magenta);
+                    textObject.SetText(users[0].GetProfile().Name + " vs " + users[1].GetProfile().Name);
+                    Events.UpdateCallback.Start(elapsed => textObject.SetText(""), 5000, 1);
+                    if (m_deathEvent == null)
+                        m_deathEvent = Events.PlayerDeathCallback.Start(OnDeath);
+                }
+                else if (users.Count == 1)
+                {
+                    Game.SetGameOver(users[0].Name + " the best fighter!");
+                }
             }
 
-            public void OnPlayerDeath(IPlayer player)
+            public void OnDeath(IPlayer player)
             {
-                if (player.GetUser() == null) return;
-                if (deadPlayers.Find(x => x.user == player.GetUser()).user != null) return;
-                deadPlayers.Add(new deadPlayer { user = player.GetUser(), team = player.GetTeam() });
-                Events.UpdateCallback.Start(Revive, TIME_TO_REVIVE, 1);
+                IUser user = player.GetUser();
+                IPlayer[] players = Game.GetPlayers();
+                if (players.Length == 2)
+                {
+                    users.Remove(player.GetUser());
+                    textObject.SetTextColor(Color.Red);
+                    if (!players[0].IsDead)
+                        textObject.SetText(players[0].Name + " won!");
+                    else if (!players[1].IsDead)
+                        textObject.SetText(players[1].Name + " won!");
+                    player.Remove();
+                    Game.GetPlayers()[0].Remove();
+                }
+                StartDuel();
             }
         }
         #endregion
+
     }
 }

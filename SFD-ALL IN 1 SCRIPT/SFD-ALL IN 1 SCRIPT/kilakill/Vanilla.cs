@@ -127,7 +127,6 @@ namespace SFDFramework
                         {
                             continue;
                         }
-
                         if (winnerTeam == PlayerTeam.Independent && player.GetTeam() != winnerTeam)
                         {
                             winnerTeam = player.GetTeam();
