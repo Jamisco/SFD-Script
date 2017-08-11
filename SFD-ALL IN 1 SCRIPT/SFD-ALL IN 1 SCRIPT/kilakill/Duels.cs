@@ -69,6 +69,7 @@ namespace SFD_ALL_IN_1_SCRIPT.Jamisco
             //Events.UpdateCallback m_updateEvent = null;
             IObjectText textObject = Game.CreateObject("Text") as IObjectText;
             List<IUser> users = new List<IUser>(8);
+            IPlayer[] duelers = new IPlayer[2];
             Random rnd = new Random();
 
             public DuelsPlugin()
@@ -95,8 +96,10 @@ namespace SFD_ALL_IN_1_SCRIPT.Jamisco
                         while (one == two) two = rnd.Next(spawners.Length);
                     IPlayer newPlayer = Game.CreatePlayer(spawners[one].GetWorldPosition());
                     newPlayer.SetUser(users[0]); newPlayer.SetProfile(users[0].GetProfile());
+                    duelers[0] = newPlayer;
                     newPlayer = Game.CreatePlayer(spawners[two].GetWorldPosition());
                     newPlayer.SetUser(users[1]); newPlayer.SetProfile(users[1].GetProfile());
+                    duelers[1] = newPlayer;
                     textObject.SetTextColor(Color.Magenta);
                     textObject.SetText(users[0].GetProfile().Name + " vs " + users[1].GetProfile().Name);
                     Events.UpdateCallback.Start(elapsed => textObject.SetText(""), 5000, 1);
@@ -111,23 +114,27 @@ namespace SFD_ALL_IN_1_SCRIPT.Jamisco
 
             public void OnDeath(IPlayer player)
             {
-                IUser user = player.GetUser();
-                IPlayer[] players = Game.GetPlayers();
-                if (players.Length == 2)
+                if (player == duelers[0] || player == duelers[1])
                 {
-                    users.Remove(player.GetUser());
-                    textObject.SetTextColor(Color.Red);
-                    if (!players[0].IsDead)
-                        textObject.SetText(players[0].Name + " won!");
-                    else if (!players[1].IsDead)
-                        textObject.SetText(players[1].Name + " won!");
-                    player.Remove();
-                    Game.GetPlayers()[0].Remove();
+                    m_deathEvent.Stop();
+                    m_deathEvent = null;
+                    IUser user = player.GetUser();
+                    IPlayer[] players = Game.GetPlayers();
+                    if (players.Length == 2)
+                    {
+                        users.Remove(player.GetUser());
+                        textObject.SetTextColor(Color.Red);
+                        if (!duelers[0].IsDead)
+                            textObject.SetText(players[0].Name + " won!");
+                        else if (!duelers[1].IsDead)
+                            textObject.SetText(players[1].Name + " won!");
+                        duelers[0].Remove();
+                        duelers[1].Remove();
+                    }
+                    StartDuel();
                 }
-                StartDuel();
             }
         }
         #endregion
-
     }
 }
