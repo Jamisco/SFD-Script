@@ -100,7 +100,6 @@ namespace SFDFramework
             public void Revive(float elapsed)
             {
                 deadPlayer player = deadPlayers[0];
-                deadPlayers.RemoveAt(0);
                 if (player.user.IsRemoved) return;
                 if (player.user.GetPlayer() != null) player.user.GetPlayer().Remove();
                 IObject[] respawns = Game.GetObjectsByName("SpawnPlayer");
@@ -108,11 +107,12 @@ namespace SFDFramework
                 revivedPlayer.SetUser(player.user);
                 revivedPlayer.SetProfile(player.user.GetProfile());
                 revivedPlayer.SetTeam(player.team);
+                deadPlayers.RemoveAt(0);
             }
 
             public void OnPlayerDeath(IPlayer player)
             {
-                if (player.GetUser() == null) return;
+                if (player.GetUser() == null || player.GetUser().IsRemoved) return;
                 if (deadPlayers.Find(x => x.user == player.GetUser()).user != null) return;
                 deadPlayers.Add(new deadPlayer { user = player.GetUser(), team = player.GetTeam() });
                 Events.UpdateCallback.Start(Revive, TIME_TO_REVIVE, 1);
