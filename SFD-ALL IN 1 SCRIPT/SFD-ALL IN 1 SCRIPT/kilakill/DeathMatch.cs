@@ -64,11 +64,6 @@ namespace SFDFramework
             new DeathMatchPlugin();
         }
 
-        public static void Gameover()
-        {
-
-        }
-
         public class DeathMatchPlugin
         {
             uint TIME_TO_REVIVE;
@@ -88,22 +83,25 @@ namespace SFDFramework
                 Game.SetMapType(MapType.Custom);
                 Game.DeathSequenceEnabled = false;
                 m_playerDeathEvent = Events.PlayerDeathCallback.Start(OnPlayerDeath);
-                m_updateEvent = Events.UpdateCallback.Start((elapsed) => {
-                    foreach (IUser user in Game.GetActiveUsers())
-                    {
-                        if (user.GetPlayer() != null) continue;
-                        if (deadPlayers.Find(x => x.user == user).user != null) continue;
-                        deadPlayers.Add(new deadPlayer { user = user, team = PlayerTeam.Independent });
-                        Events.UpdateCallback.Start(Revive, TIME_TO_REVIVE, 1);
-                    }
-                }, 1000);
+                m_updateEvent = Events.UpdateCallback.Start(OnConnected, 1000);
+            }
+
+            public void OnConnected(float elapsed)
+            {
+                foreach (IUser user in Game.GetActiveUsers())
+                {
+                    if (user.GetPlayer() != null) continue;
+                    if (deadPlayers.Find(x => x.user == user).user != null) continue;
+                    deadPlayers.Add(new deadPlayer { user = user, team = PlayerTeam.Independent });
+                    Events.UpdateCallback.Start(Revive, TIME_TO_REVIVE, 1);
+                }
             }
 
             public void Revive(float elapsed)
             {
                 deadPlayer player = deadPlayers[0];
                 deadPlayers.RemoveAt(0);
-                if (player.user == null) return;
+                if (player.user.IsRemoved) return;
                 if (player.user.GetPlayer() != null) player.user.GetPlayer().Remove();
                 IObject[] respawns = Game.GetObjectsByName("SpawnPlayer");
                 IPlayer revivedPlayer = Game.CreatePlayer(respawns[rnd.Next(respawns.Length)].GetWorldPosition());
