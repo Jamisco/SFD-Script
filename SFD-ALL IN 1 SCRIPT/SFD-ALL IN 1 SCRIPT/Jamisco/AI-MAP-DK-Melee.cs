@@ -16,41 +16,32 @@ namespace SFDConsoleApplication1
         public void OnStartup()
         {
             The_Gunner.CreateBots("The_Gunner");
-        } 
+        }
 
         public abstract class Map_Details
         {
-            protected List<IObject> ledges = new List<IObject> { };
-            protected List<IObject> ladders = new List<IObject> { };
-            protected List<Vector2> cliff = new List<Vector2> { };
-            protected List<IObject> Strong_obj = new List<IObject> { };
-            protected IObject x_barrel = Game.GetObject(24);
-            protected IObject crate = Game.GetObject(26);
-            protected List<IObject> AllObjects = new List<IObject>();
+            protected static List<IObject> ledges = new List<IObject>(Game.GetObjectsByCustomID("ledge"));
+            protected static List<IObject> ladders = new List<IObject>(Game.GetObjectsByCustomID("ladder"));
+            protected static List<Vector2> cliff = new List<Vector2> { };
+            protected static IObject[] XBarrel = Game.GetObjectsByName("BarrelExplosive");
+            protected static List<IObject> AllObjects = new List<IObject>();
+            protected static List<IObject> Objs_In_Path = new List<IObject>();
             public enum FloorLevel { one, two, three }
             #region floor levels
-            private readonly int floorLvl_1 = 0;
+            private readonly int floorLvl_1 = -31;
             private readonly int floorLvl_2 = 15;
             private readonly int floorLvl_3 = 72;
             #endregion
 
             public Map_Details()
             {
-                foreach (IObject obj in Game.GetObjectsByCustomID("ledge"))
+                foreach (IObject obj in ledges)
                 {
-                    ledges.Add(obj);
                     AllObjects.Add(obj);
                 }
 
-                foreach (IObject obj in Game.GetObjectsByCustomID("ladder"))
+                foreach (IObject obj in ladders)
                 {
-                    ladders.Add(obj);
-                    AllObjects.Add(obj);
-                }
-
-                foreach (IObject obj in Game.GetObjectsByCustomID("Strong_obj"))
-                {
-                    Strong_obj.Add(obj);
                     AllObjects.Add(obj);
                 }
 
@@ -58,32 +49,46 @@ namespace SFDConsoleApplication1
                 {
                     cliff.Add(obj.GetWorldPosition());
                 }
+
+                foreach (IObject obj in Game.GetObjectsByCustomID("Objs_In_Path"))
+                {
+                    Objs_In_Path.Add(obj);
+                }
             }
 
             public float GetDistance(Vector2 BotPos, IObject obj)
             {
-                return (obj.GetWorldPosition() - BotPos).Length();
+                float Distance = Vector2.Distance(new Vector2(BotPos.X, BotPos.Y),
+                    new Vector2(obj.GetWorldPosition().X, obj.GetWorldPosition().Y));
+                return Distance;
             }
 
-            public int FloorLvl(IObject obj)
+            public float GetDistance(Vector2 BotPos, Vector2 obj_location)
+            {
+                float Distance = Vector2.Distance(new Vector2(BotPos.X, BotPos.Y),
+                    new Vector2(obj_location.X, obj_location.Y));
+                return Distance;
+            }
+
+            public FloorLevel FloorLvl(IObject obj)
             {
                 if (obj.GetWorldPosition().Y < floorLvl_1)
                 {
-                    return (int)FloorLevel.one;
+                    return FloorLevel.one;
                 }
                 else if (obj.GetWorldPosition().Y >= floorLvl_2 && obj.GetWorldPosition().Y < floorLvl_3)
                 {
-                    return (int)FloorLevel.two;
+                    return FloorLevel.two;
                 }
                 else
                 {
-                    return (int)FloorLevel.three;
+                    return FloorLevel.three;
                 }
             }
 
             public FloorLevel FloorLvl(IPlayer plyr)
             {
-                if (plyr.GetWorldPosition().Y < floorLvl_1)
+                if (plyr.GetWorldPosition().Y < floorLvl_2)
                 {
                     return FloorLevel.one;
                 }
@@ -98,13 +103,11 @@ namespace SFDConsoleApplication1
             }
 
         }
- 
+
         public class The_Gunner : Map_Details
         {
             public IPlayer bot;
-            public The_Gunner gunner;
             public List<IObject> spawnLocation = new List<IObject>(Game.GetObjectsByName("SpawnPlayer"));
-            public List<IObject> Objs_in_path = new List<IObject>();
             List<Enemy> enemies = new List<Enemy>();
             public Enemy target = null;
             public bool NearTarget;
@@ -137,7 +140,7 @@ namespace SFDConsoleApplication1
             {
                 foreach (IObjectPlayerSpawnTrigger The_Gunner in Game.GetObjectsByCustomID(ID))
                 {
-                     new The_Gunner(The_Gunner.CreatePlayer());
+                    new The_Gunner(The_Gunner.CreatePlayer(The_Gunner.GetWorldPosition()));
                     //spawns are random location
                 }
             }
@@ -145,8 +148,7 @@ namespace SFDConsoleApplication1
             public The_Gunner(IPlayer cpu)
             {
                 bot = cpu;
-                gunner = new The_Gunner(bot);
-                bot.SetWorldPosition(spawnLocation[rnd.Next(spawnLocation.Count)].GetWorldPosition());
+                //  bot.SetWorldPosition(spawnLocation[rnd.Next(spawnLocation.Count)].GetWorldPosition());
                 PlayerTeam GunnerTeam = bot.GetTeam();  // if bot team is set to none, error pops up
                 if (GunnerTeam == PlayerTeam.Independent)    // change was made to account for that error here
                 {
@@ -167,15 +169,10 @@ namespace SFDConsoleApplication1
                             enemies.Add(new Enemy(plyr));
                         }
                     }
-
                 }
 
-                foreach (IObject obj in gunner.AllObjects)
-                {
-                    Objs_in_path.Add(obj);
-                }
                 attck_updateEvent = Events.UpdateCallback.Start(attck_OnUpdate, 200);
-                attck_updateEvent = Events.UpdateCallback.Start(Fire_OnUpdate, 200);
+                //attck_updateEvent = Events.UpdateCallback.Start(Fire_OnUpdate, 200);
             } //constructor
 
             //public FloorLevel Get_FloorLvl
@@ -200,22 +197,18 @@ namespace SFDConsoleApplication1
             public bool ObjInPath()
             {
                 bool inPath = false;
-                foreach(IObject obj in Objs_in_path)
+                foreach (IObject obj in Objs_In_Path)
                 {
-                    if (gunner.GetDistance(bot.GetWorldPosition(), obj) <= 10)
+                    if (GetDistance(bot.GetWorldPosition(), obj) <= 25)
                     {
                         inPath = true;
-                    }
-                    else
-                    {
-                        inPath = false;
                     }
                 }
 
                 if (inPath == false)
                 {
                     return false;
-                } 
+                }
                 else
                 {
                     return true;
@@ -281,14 +274,176 @@ namespace SFDConsoleApplication1
                 }
             }
 
+            public void GotoFloor(FloorLevel enemy_floorLvl)
+            {
+                List<Vector2> ledge_inbot_flrlvl = new List<Vector2>();
+                List<Vector2> ladder_inbot_flrlvl = new List<Vector2>();
+                float botX;
+                float objX;
+                float dstnce2Obj;
+
+                if (FloorLvl(bot) != enemy_floorLvl)
+                {
+                    foreach (IObject obj in ledges)
+                    {
+                        if (FloorLvl(obj) == FloorLvl(bot))
+                        {
+                            ledge_inbot_flrlvl.Add(obj.GetWorldPosition());
+                        }
+                    }
+
+                    if (ledge_inbot_flrlvl.Count > 0)
+                    {
+                        for (int i = 0; i <= ledge_inbot_flrlvl.Count; i++)
+                        {
+                            for (int j = i + 1; j <= ledge_inbot_flrlvl.Count - 1; j++)
+                            {
+                                float distance1 = GetDistance(bot.GetWorldPosition(), ledge_inbot_flrlvl[i]);
+                                float distance2 = GetDistance(bot.GetWorldPosition(), ledge_inbot_flrlvl[j]);
+                                if (distance2 > distance1)
+                                {
+                                    Vector2 tempvec = ledge_inbot_flrlvl[i];
+                                    ledge_inbot_flrlvl[i] = ledge_inbot_flrlvl[j];
+                                    ledge_inbot_flrlvl[j] = tempvec;
+                                }
+                            }
+                        }
+                    }
+
+                    foreach (IObject obj in ladders)
+                    {
+                        if (FloorLvl(obj) == FloorLvl(bot))
+                        {
+                            ladder_inbot_flrlvl.Add(obj.GetWorldPosition());
+                        }
+                    }
+
+                    if (ladder_inbot_flrlvl.Count > 0)
+                    {
+                        for (int i = 0; i <= ladder_inbot_flrlvl.Count; i++)
+                        {
+                            for (int j = i + 1; j <= ladder_inbot_flrlvl.Count - 1; j++)
+                            {
+                                float distance1 = GetDistance(bot.GetWorldPosition(), ladder_inbot_flrlvl[i]);
+                                float distance2 = GetDistance(bot.GetWorldPosition(), ladder_inbot_flrlvl[j]);
+                                if (distance2 > distance1)
+                                {
+                                    Vector2 tempvec = ladder_inbot_flrlvl[i];
+                                    ladder_inbot_flrlvl[i] = ladder_inbot_flrlvl[j];
+                                    ladder_inbot_flrlvl[j] = tempvec;
+                                }
+                            }
+                        }
+                    }
+
+                    if (enemy_floorLvl > FloorLvl(bot))
+                    {
+                        if (GetDistance(bot.GetWorldPosition(), ledge_inbot_flrlvl.First()) <=
+                            GetDistance(bot.GetWorldPosition(), ladder_inbot_flrlvl.First()))
+                        {
+                            botX = Math.Abs(bot.GetWorldPosition().X);
+                            objX = Math.Abs(ledge_inbot_flrlvl.First().X);
+
+                            if (botX > objX)
+                            {
+                                dstnce2Obj = botX - objX;
+                            }
+                            else if (objX > botX)
+                            {
+                                dstnce2Obj = objX - botX;
+                            }
+                            else
+                            {
+                                dstnce2Obj = botX - objX;
+                            }
+
+                            if (dstnce2Obj < 20 && dstnce2Obj > 5 || bot.IsLedgeGrabbing && dstnce2Obj < 5)
+                            {
+                                Game.CreateDialogue("JUmpppp", bot, "", 1000);
+                                if (dstnce2Obj < 20 && !bot.IsLedgeGrabbing)
+                                {
+                                    bot.ClearCommandQueue();
+                                    bot.AddCommand(new PlayerCommand(move2Pos, ledge_inbot_flrlvl.First()));
+                                    bot.AddCommand(new PlayerCommand(sprint));
+                                    bot.AddCommand(new PlayerCommand(jump, ledge_inbot_flrlvl.First()));
+                                }
+
+                                if (bot.IsLedgeGrabbing)
+                                {
+                                    bot.ClearCommandQueue();
+                                    bot.AddCommand(new PlayerCommand(move2Pos, target.m_enemy.GetWorldPosition()));
+                                    bot.AddCommand(new PlayerCommand(jump, target.m_enemy.GetWorldPosition()));
+                                    bot.AddCommand(new PlayerCommand(sprint));
+                                }
+                            }
+                            else
+                            {
+                                Game.CreateDialogue("position", bot, "", 1000);
+                                bot.ClearCommandQueue();
+                                if (bot.FacingDirection == 1)
+                                {
+                                    bot.ClearCommandQueue();
+                                    bot.AddCommand(new PlayerCommand(move2Pos, ledge_inbot_flrlvl.First() - new Vector2(15, 0)));
+                                    bot.AddCommand(new PlayerCommand(sprint));
+                                    bot.AddCommand(new PlayerCommand(PlayerCommandType.WaitDestinationReached));
+                                }
+                                else
+                                {
+                                    bot.ClearCommandQueue();
+                                    bot.AddCommand(new PlayerCommand(move2Pos, ledge_inbot_flrlvl.First() + new Vector2(15, 0)));
+                                    bot.AddCommand(new PlayerCommand(sprint));
+                                    bot.AddCommand(new PlayerCommand(PlayerCommandType.WaitDestinationReached));
+                                }
+                            }
+                        }
+                        else
+                        {
+                            if (ladder_inbot_flrlvl.Count > 0)
+                            {
+                                Game.ShowPopupMessage("more");
+                            }
+                            else
+                            {
+                                Game.ShowPopupMessage("Zero");
+                            }
+
+                            botX = Math.Abs(bot.GetWorldPosition().X);
+                            objX = Math.Abs(ladder_inbot_flrlvl.First().X);
+                            if (botX >= objX)
+                            {
+                                dstnce2Obj = botX - objX;
+                            }
+                            else 
+                            {
+                                dstnce2Obj = objX - botX;
+                            }
+
+                            if (dstnce2Obj < 20)
+                            {
+                                bot.ClearCommandQueue();
+                                bot.AddCommand(new PlayerCommand(move2Pos, ladder_inbot_flrlvl.First()));
+                                bot.AddCommand(new PlayerCommand(sprint));
+                                bot.AddCommand(new PlayerCommand(jump, ladder_inbot_flrlvl.First()));
+                                bot.AddCommand(new PlayerCommand(PlayerCommandType.StartClimbUp));
+                            }
+                            else
+                            {
+                                bot.ClearCommandQueue();
+                                bot.AddCommand(new PlayerCommand(move2Pos, ladder_inbot_flrlvl.First()));
+                                bot.AddCommand(new PlayerCommand(sprint));
+                            }
+                        }
+                    }
+                }
+            }
+
             public void GoToEnemyAndAttack()
             {
                 //Game.CreateDialogue("ingotoenemy", bot); // DEBUG
                 //Game.ShowPopupMessage(target.GetDistance(bot.GetWorldPosition()).ToString());
-                #region directions
+                #region direction
                 float x = (target.m_enemy.GetWorldPosition() - bot.GetWorldPosition()).X;
                 PlayerCommandFaceDirection direction = (PlayerCommandFaceDirection)(x / Math.Abs(x));
-
                 #endregion
                 #region logic that kinda has to be here
                 if (bot.CurrentWeaponDrawn == WeaponItemType.Rifle
@@ -326,30 +481,34 @@ namespace SFDConsoleApplication1
                 }
                 #endregion
 
-                if (target.GetDistance(bot.GetWorldPosition()) > 20)
+                if (target.GetDistance(bot.GetWorldPosition()) > 15 || FloorLvl(target.m_enemy) != FloorLvl(bot))
                 {
-                    if (ObjInPath())
-                    {
-                        bot.ClearCommandQueue();
-                        bot.AddCommand(new PlayerCommand(move2Pos, target.m_enemy.GetWorldPosition()));
-                        bot.AddCommand(new PlayerCommand(jump, target.m_enemy.GetWorldPosition()));
-                    }
-                    else
+                    if (!ObjInPath() && FloorLvl(target.m_enemy) == FloorLvl(bot))
                     {
                         bot.ClearCommandQueue();
                         bot.AddCommand(new PlayerCommand(move2Pos, target.m_enemy.GetWorldPosition() -
                         safeDstnce * (int)direction, direction));
                         bot.AddCommand(new PlayerCommand(sprint));
                     }
-
-                    if (target.GetDistance(bot.GetWorldPosition()) > 40 && target.GetDistance(bot.GetWorldPosition()) < 50)
+                    else if (ObjInPath() && FloorLvl(target.m_enemy) == FloorLvl(bot))
                     {
                         bot.ClearCommandQueue();
-                        bot.AddCommand(new PlayerCommand(dive, target.m_enemy.GetWorldPosition()));
+                        bot.AddCommand(new PlayerCommand(jump, target.m_enemy.GetWorldPosition()));
+                    }
+                    else if (FloorLvl(bot) < FloorLvl(target.m_enemy))
+                    {
+                        bot.ClearCommandQueue();
+                        Game.CreateDialogue("drop", bot, "", 500);
+                        bot.AddCommand(new PlayerCommand(PlayerCommandType.DropPlatform));
+                    }
+                    else if (FloorLvl(bot) > FloorLvl(target.m_enemy))
+                    {
+                        Game.CreateDialogue("floor", bot, "", 500);
+                        GotoFloor(FloorLvl(target.m_enemy));
                     }
                     NearTarget = false;
                 }
-                else
+                else if (target.GetDistance(bot.GetWorldPosition()) < 15 && FloorLvl(target.m_enemy) == FloorLvl(bot))
                 {
                     NearTarget = true;
                     if (target.m_enemy.IsMeleeAttacking)
@@ -424,6 +583,11 @@ namespace SFDConsoleApplication1
                     {
                         bot.ClearCommandQueue();
                         bot.AddCommand(new PlayerCommand(grab));
+                    }
+                    else if (target.m_enemy.IsLedgeGrabbing)
+                    {
+                        bot.ClearCommandQueue();
+                        bot.AddCommand(new PlayerCommand(kick, direction));
                     }
                     else if (!target.m_enemy.IsDead || target != null)
                     {
@@ -603,182 +767,182 @@ namespace SFDConsoleApplication1
                 }
             }
 
-            private void Fire_OnUpdate(float elapsed)
-            {
-                int num2 = rnd.Next(1, 4);
-                int num = rnd.Next(1, 3);
+            //private void Fire_OnUpdate(float elapsed)
+            //{
+            //    int num2 = rnd.Next(1, 4);
+            //    int num = rnd.Next(1, 3);
 
-                if (enemies.Count != 0 && !bot.IsDead)
-                {
-                    foreach (Enemy enemy in enemies)
-                    {
-                        if (enemy != target)
-                        {
-                            IPlayer plyr = enemy.m_enemy;
+            //    if (enemies.Count != 0 && !bot.IsDead)
+            //    {
+            //        foreach (Enemy enemy in enemies)
+            //        {
+            //            if (enemy != target)
+            //            {
+            //                IPlayer plyr = enemy.m_enemy;
 
-                            if (plyr.IsManualAiming || plyr.IsHipFiring)
-                            {
-                                if (num == 1)
-                                {
-                                    bot.ClearCommandQueue();
-                                    bot.AddCommand(new PlayerCommand(PlayerCommandType.StopAim));
-                                    bot.AddCommand(new PlayerCommand(ceaseFire));
-                                    bot.AddCommand(new PlayerCommand(roll, rnd.Next(-1, 2), 200));
-                                }
-                                else if (num == 2)
-                                {
-                                    bot.ClearCommandQueue();
-                                    bot.AddCommand(new PlayerCommand(PlayerCommandType.StopAim));
-                                    bot.AddCommand(new PlayerCommand(ceaseFire));
-                                    bot.AddCommand(new PlayerCommand(dive, rnd.Next(-1, 2), 200));
-                                }
-                            }
-                        }
-                    } // checks if other players are aiming at the bot
-                }
-                else
-                {
-                    GameOver();
-                }
+            //                if (plyr.IsManualAiming || plyr.IsHipFiring)
+            //                {
+            //                    if (num == 1)
+            //                    {
+            //                        bot.ClearCommandQueue();
+            //                        bot.AddCommand(new PlayerCommand(PlayerCommandType.StopAim));
+            //                        bot.AddCommand(new PlayerCommand(ceaseFire));
+            //                        bot.AddCommand(new PlayerCommand(roll, rnd.Next(-1, 2), 200));
+            //                    }
+            //                    else if (num == 2)
+            //                    {
+            //                        bot.ClearCommandQueue();
+            //                        bot.AddCommand(new PlayerCommand(PlayerCommandType.StopAim));
+            //                        bot.AddCommand(new PlayerCommand(ceaseFire));
+            //                        bot.AddCommand(new PlayerCommand(dive, rnd.Next(-1, 2), 200));
+            //                    }
+            //                }
+            //            }
+            //        } // checks if other players are aiming at the bot
+            //    }
+            //    else
+            //    {
+            //        GameOver();
+            //    }
 
-                if (target != null && enemies.Count > 0 && !bot.IsDead)
-                {
-                    if (!target.In_GFZ(bot.GetWorldPosition(), bot))
-                    {
+            //    if (target != null && enemies.Count > 0 && !bot.IsDead)
+            //    {
+            //        if (!target.In_GFZ(bot.GetWorldPosition(), bot))
+            //        {
 
-                        if (bot.CurrentWeaponDrawn == WeaponItemType.Rifle && !target.m_enemy.IsRolling &&
-                            !target.m_enemy.IsDiving && !target.m_enemy.IsTakingCover || target.m_enemy.IsTakingCover &&
-                            (target.m_enemy.IsManualAiming || target.m_enemy.IsHipFiring) &&
-                            bot.CurrentWeaponDrawn == WeaponItemType.Rifle)
-                        {
-                            if (bot.CurrentPrimaryWeapon.CurrentAmmo > 0)
-                            {
-                                if (target.m_enemy.IsManualAiming || target.m_enemy.IsHipFiring)
-                                {
-                                    if (num2 == 1 || num2 == 2)
-                                    {
-                                        bot.ClearCommandQueue();
-                                        bot.AddCommand(new PlayerCommand(aim, target.m_enemy.UniqueID));
-                                        bot.AddCommand(new PlayerCommand(fire));
-                                    }
-                                    else
-                                    {
-                                        if (num == 1)
-                                        {
-                                            bot.ClearCommandQueue();
-                                            bot.AddCommand(new PlayerCommand(PlayerCommandType.StopAim, 0, 100));
-                                            bot.AddCommand(new PlayerCommand(ceaseFire));
-                                            if (!bot.IsDiving || !bot.IsRolling)
-                                            {
-                                                bot.AddCommand(new PlayerCommand(roll, rnd.Next(-1, 2), 500));
+            //            if (bot.CurrentWeaponDrawn == WeaponItemType.Rifle && !target.m_enemy.IsRolling &&
+            //                !target.m_enemy.IsDiving && !target.m_enemy.IsTakingCover || target.m_enemy.IsTakingCover &&
+            //                (target.m_enemy.IsManualAiming || target.m_enemy.IsHipFiring) &&
+            //                bot.CurrentWeaponDrawn == WeaponItemType.Rifle)
+            //            {
+            //                if (bot.CurrentPrimaryWeapon.CurrentAmmo > 0)
+            //                {
+            //                    if (target.m_enemy.IsManualAiming || target.m_enemy.IsHipFiring)
+            //                    {
+            //                        if (num2 == 1 || num2 == 2)
+            //                        {
+            //                            bot.ClearCommandQueue();
+            //                            bot.AddCommand(new PlayerCommand(aim, target.m_enemy.UniqueID));
+            //                            bot.AddCommand(new PlayerCommand(fire));
+            //                        }
+            //                        else
+            //                        {
+            //                            if (num == 1)
+            //                            {
+            //                                bot.ClearCommandQueue();
+            //                                bot.AddCommand(new PlayerCommand(PlayerCommandType.StopAim, 0, 100));
+            //                                bot.AddCommand(new PlayerCommand(ceaseFire));
+            //                                if (!bot.IsDiving || !bot.IsRolling)
+            //                                {
+            //                                    bot.AddCommand(new PlayerCommand(roll, rnd.Next(-1, 2), 500));
 
-                                                // Game.CreateDialogue("roll", bot, "", 500); //DEBUG
-                                            }
-                                        }
-                                        else if (num == 2)
-                                        {
+            //                                    // Game.CreateDialogue("roll", bot, "", 500); //DEBUG
+            //                                }
+            //                            }
+            //                            else if (num == 2)
+            //                            {
 
-                                            bot.ClearCommandQueue();
-                                            bot.AddCommand(new PlayerCommand(PlayerCommandType.StopAim));
-                                            bot.AddCommand(new PlayerCommand(ceaseFire));
-                                            if (!bot.IsDiving || !bot.IsRolling)
-                                            {
-                                                bot.AddCommand(new PlayerCommand(dive, rnd.Next(-1, 2), 1000));
-                                                //Game.CreateDialogue("dive", bot, "", 1000); //DEBUG
-                                            }
-                                        }
-                                    }
-                                }
-                                else
-                                {
-                                    bot.ClearCommandQueue();
-                                    bot.AddCommand(new PlayerCommand(aim, target.m_enemy.UniqueID));
-                                    bot.AddCommand(new PlayerCommand(fire));
-                                }
-                            }
-                        }
-                        else
-                        if (bot.CurrentWeaponDrawn == WeaponItemType.Handgun && !target.m_enemy.IsRolling &&
-                           !target.m_enemy.IsDiving && !target.m_enemy.IsTakingCover || target.m_enemy.IsTakingCover &&
-                           (target.m_enemy.IsManualAiming || target.m_enemy.IsHipFiring) &&
-                            bot.CurrentWeaponDrawn == WeaponItemType.Handgun)
-                        {
-                            if (bot.CurrentSecondaryWeapon.CurrentAmmo > 0)
-                            {
-                                if (target.m_enemy.IsManualAiming || target.m_enemy.IsHipFiring)
-                                {
-                                    if (num2 == 1 || num2 == 2)
-                                    {
-                                        bot.ClearCommandQueue();
-                                        //   Game.CreateDialogue("inFire", target.m_enemy, "", 500);
-                                        bot.AddCommand(new PlayerCommand(aim, target.m_enemy.UniqueID));
-                                        bot.AddCommand(new PlayerCommand(fire));
-                                    }
-                                    else
-                                    {
-                                        if (num == 1)
-                                        {
-                                            bot.ClearCommandQueue();
-                                            bot.AddCommand(new PlayerCommand(PlayerCommandType.StopAim, 0, 100));
-                                            bot.AddCommand(new PlayerCommand(ceaseFire));
-                                            if (!bot.IsDiving || !bot.IsRolling)
-                                            {
-                                                bot.AddCommand(new PlayerCommand(roll, rnd.Next(-1, 2), 500));
+            //                                bot.ClearCommandQueue();
+            //                                bot.AddCommand(new PlayerCommand(PlayerCommandType.StopAim));
+            //                                bot.AddCommand(new PlayerCommand(ceaseFire));
+            //                                if (!bot.IsDiving || !bot.IsRolling)
+            //                                {
+            //                                    bot.AddCommand(new PlayerCommand(dive, rnd.Next(-1, 2), 1000));
+            //                                    //Game.CreateDialogue("dive", bot, "", 1000); //DEBUG
+            //                                }
+            //                            }
+            //                        }
+            //                    }
+            //                    else
+            //                    {
+            //                        bot.ClearCommandQueue();
+            //                        bot.AddCommand(new PlayerCommand(aim, target.m_enemy.UniqueID));
+            //                        bot.AddCommand(new PlayerCommand(fire));
+            //                    }
+            //                }
+            //            }
+            //            else
+            //            if (bot.CurrentWeaponDrawn == WeaponItemType.Handgun && !target.m_enemy.IsRolling &&
+            //               !target.m_enemy.IsDiving && !target.m_enemy.IsTakingCover || target.m_enemy.IsTakingCover &&
+            //               (target.m_enemy.IsManualAiming || target.m_enemy.IsHipFiring) &&
+            //                bot.CurrentWeaponDrawn == WeaponItemType.Handgun)
+            //            {
+            //                if (bot.CurrentSecondaryWeapon.CurrentAmmo > 0)
+            //                {
+            //                    if (target.m_enemy.IsManualAiming || target.m_enemy.IsHipFiring)
+            //                    {
+            //                        if (num2 == 1 || num2 == 2)
+            //                        {
+            //                            bot.ClearCommandQueue();
+            //                            //   Game.CreateDialogue("inFire", target.m_enemy, "", 500);
+            //                            bot.AddCommand(new PlayerCommand(aim, target.m_enemy.UniqueID));
+            //                            bot.AddCommand(new PlayerCommand(fire));
+            //                        }
+            //                        else
+            //                        {
+            //                            if (num == 1)
+            //                            {
+            //                                bot.ClearCommandQueue();
+            //                                bot.AddCommand(new PlayerCommand(PlayerCommandType.StopAim, 0, 100));
+            //                                bot.AddCommand(new PlayerCommand(ceaseFire));
+            //                                if (!bot.IsDiving || !bot.IsRolling)
+            //                                {
+            //                                    bot.AddCommand(new PlayerCommand(roll, rnd.Next(-1, 2), 500));
 
-                                                //Game.CreateDialogue("roll", bot, "", 500); //DEBUG
-                                            }
-                                        }
-                                        else if (num == 2)
-                                        {
-                                            bot.ClearCommandQueue();
-                                            bot.AddCommand(new PlayerCommand(PlayerCommandType.StopAim));
-                                            bot.AddCommand(new PlayerCommand(ceaseFire));
-                                            if (!bot.IsDiving || !bot.IsRolling)
-                                            {
-                                                bot.AddCommand(new PlayerCommand(dive, rnd.Next(-1, 2), 1000));
-                                                //  Game.CreateDialogue("dive", bot, "", 1000); //DEBUG
-                                            }
-                                        }
-                                    }
-                                }
-                                else
-                                {
-                                    bot.ClearCommandQueue();
-                                    //  Game.CreateDialogue("inFire", target.m_enemy, "", 500);
-                                    bot.AddCommand(new PlayerCommand(aim, target.m_enemy.UniqueID));
-                                    bot.AddCommand(new PlayerCommand(fire));
-                                }
-                            }
-                        }
-                        else
-                        {
-                            if (bot.IsManualAiming)
-                            {
-                                bot.ClearCommandQueue();
-                                bot.AddCommand(new PlayerCommand(ceaseFire));
-                            }
-                            else
-                            {
-                                bot.ClearCommandQueue();
-                                bot.AddCommand(new PlayerCommand(PlayerCommandType.StopAim));
-                                bot.AddCommand(new PlayerCommand(ceaseFire));
-                            }
-                        }
-                    }
-                    else
-                    {
-                        bot.ClearCommandQueue();
-                        bot.AddCommand(new PlayerCommand(PlayerCommandType.StopAim));
-                        bot.AddCommand(new PlayerCommand(ceaseFire));
-                        bot.AddCommand(new PlayerCommand(sheath));
-                    }
-                }
-                else if (bot.IsDead)
-                {
-                    GameOver();
-                }
+            //                                    //Game.CreateDialogue("roll", bot, "", 500); //DEBUG
+            //                                }
+            //                            }
+            //                            else if (num == 2)
+            //                            {
+            //                                bot.ClearCommandQueue();
+            //                                bot.AddCommand(new PlayerCommand(PlayerCommandType.StopAim));
+            //                                bot.AddCommand(new PlayerCommand(ceaseFire));
+            //                                if (!bot.IsDiving || !bot.IsRolling)
+            //                                {
+            //                                    bot.AddCommand(new PlayerCommand(dive, rnd.Next(-1, 2), 1000));
+            //                                    //  Game.CreateDialogue("dive", bot, "", 1000); //DEBUG
+            //                                }
+            //                            }
+            //                        }
+            //                    }
+            //                    else
+            //                    {
+            //                        bot.ClearCommandQueue();
+            //                        //  Game.CreateDialogue("inFire", target.m_enemy, "", 500);
+            //                        bot.AddCommand(new PlayerCommand(aim, target.m_enemy.UniqueID));
+            //                        bot.AddCommand(new PlayerCommand(fire));
+            //                    }
+            //                }
+            //            }
+            //            else
+            //            {
+            //                if (bot.IsManualAiming)
+            //                {
+            //                    bot.ClearCommandQueue();
+            //                    bot.AddCommand(new PlayerCommand(ceaseFire));
+            //                }
+            //                else
+            //                {
+            //                    bot.ClearCommandQueue();
+            //                    bot.AddCommand(new PlayerCommand(PlayerCommandType.StopAim));
+            //                    bot.AddCommand(new PlayerCommand(ceaseFire));
+            //                }
+            //            }
+            //        }
+            //        else
+            //        {
+            //            bot.ClearCommandQueue();
+            //            bot.AddCommand(new PlayerCommand(PlayerCommandType.StopAim));
+            //            bot.AddCommand(new PlayerCommand(ceaseFire));
+            //            bot.AddCommand(new PlayerCommand(sheath));
+            //        }
+            //    }
+            //    else if (bot.IsDead)
+            //    {
+            //        GameOver();
+            //    }
 
-            }
+            //}
         }
 
         public class Enemy : Map_Details
@@ -792,7 +956,9 @@ namespace SFDConsoleApplication1
 
             public float GetDistance(Vector2 BotPosition)
             {
-                return (m_enemy.GetWorldPosition() - BotPosition).Length();
+                float Distance = Vector2.Distance(new Vector2(BotPosition.X, BotPosition.Y),
+                    new Vector2(m_enemy.GetWorldPosition().X, m_enemy.GetWorldPosition().Y));
+                return Distance;
             }
 
             public bool In_GFZ(Vector2 BotPos, IPlayer bot) //GFZ means Gun Free Zone ... so this is the distance where bot should not use gun
@@ -810,7 +976,7 @@ namespace SFDConsoleApplication1
                     return false;
                 }
 
-                
+
             }
         }
         #endregion
