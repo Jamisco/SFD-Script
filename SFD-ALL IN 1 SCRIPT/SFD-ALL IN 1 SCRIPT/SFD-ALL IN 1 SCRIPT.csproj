@@ -48,6 +48,7 @@
   <ItemGroup>
     <Compile Include="Jamisco\AI-MAP-DK-Melee.cs" />
     <Compile Include="Jamisco\Death Battle.cs" />
+    <Compile Include="kilakill\Duels.cs" />
     <Compile Include="kilakill\DeathMatch.cs" />
     <Compile Include="Jamisco\Jamisco.cs" />
     <Compile Include="Jamisco\Jamisco_DM.cs" />
