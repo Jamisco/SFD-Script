@@ -6,11 +6,11 @@ using System.Text;
 using System.Text.RegularExpressions;
 using SFDGameScriptInterface;
 
-namespace SFDFramework
+namespace SFDFramework.Plugins
 {
-    class DeathMatch : GameScriptInterface
+    class MultiStart : GameScriptInterface
     {
-        public DeathMatch() : base(null) { }
+        public MultiStart() : base(null) { }
 
         #region
         // SIGNATURE

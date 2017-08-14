@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using SFDGameScriptInterface;
 
-namespace SFD_ALL_IN_1_SCRIPT.Jamisco
+namespace SFDFramework.Plugins
 {
     class Duels : GameScriptInterface
     {
