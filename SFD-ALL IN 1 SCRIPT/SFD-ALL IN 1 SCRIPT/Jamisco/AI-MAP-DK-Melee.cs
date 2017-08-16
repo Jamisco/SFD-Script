@@ -8,7 +8,7 @@ namespace SFDConsoleApplication1
     class AI_MAP_DK_Melee : GameScriptInterface
     {
         public AI_MAP_DK_Melee() : base(null) { }
-        #region AI_MAP_DK_Melee
+         #region AI_MAP_DK_Melee
         static Random rnd = new Random();
 
         public void OnStartup()
@@ -100,7 +100,6 @@ namespace SFDConsoleApplication1
                     return FloorLevel.three;
                 }
             }
-
         }
 
         public class The_Gunner : Map_Details
@@ -143,7 +142,7 @@ namespace SFDConsoleApplication1
                     //spawns are random location
                 }
             }
-
+         
             public The_Gunner(IPlayer cpu)
             {
                 bot = cpu;
@@ -445,7 +444,7 @@ namespace SFDConsoleApplication1
 
                             if (dstnce2Obj < 20 && dstnce2Obj > 10 || bot.IsLedgeGrabbing && dstnce2Obj < 10)
                             {
-                                if (dstnce2Obj < 25 && !bot.IsLedgeGrabbing)
+                                if (!bot.IsLedgeGrabbing)
                                 {
                                     Game.CreateDialogue("jump2ledge", bot, "", 1000);
                                     bot.ClearCommandQueue();
@@ -678,39 +677,32 @@ namespace SFDConsoleApplication1
                     {
                         dstnce2Obj = botX - objX;
                     }
+                    Game.ShowPopupMessage(dstnce2Obj.ToString());
 
                     if (dstnce2Obj < 20 && dstnce2Obj > 10 || bot.IsLedgeGrabbing && dstnce2Obj < 10)
                     {
-                        if (bot.IsLedgeGrabbing)
+                        if (!bot.IsLedgeGrabbing)
                         {
-                            bot.ClearCommandQueue();
-                            bot.AddCommand(new PlayerCommand(move2Pos, target.m_enemy.GetWorldPosition()));
-                            bot.AddCommand(new PlayerCommand(jump));
-                            bot.AddCommand(new PlayerCommand(kick, target.m_enemy.UniqueID));
-                        }
-                        else
-                        {
-                            Game.CreateDialogue("jump2ledge, same lvl", bot, "", 1000);
                             bot.ClearCommandQueue();
                             bot.AddCommand(new PlayerCommand(move2Pos, ledge_inbot_flrlvl.First()));
                             bot.AddCommand(new PlayerCommand(sprint));
                             bot.AddCommand(new PlayerCommand(jump));
                         }
 
-                        if (dstnce2Obj <= 6)
+                        if (bot.IsLedgeGrabbing)
                         {
                             bot.ClearCommandQueue();
+                            bot.AddCommand(new PlayerCommand(move2Pos, target.m_enemy.GetWorldPosition()));
                             bot.AddCommand(new PlayerCommand(jump));
-                            bot.AddCommand(new PlayerCommand(kick, target.m_enemy.UniqueID));
+                            bot.AddCommand(new PlayerCommand(sprint));
                         }
                     }
                     else
                     {
                         MoveTo(ledge_inbot_flrlvl.First(), new Vector2(20, 0) *
-                            bot.FacingDirection / - 1);
+                            bot.FacingDirection);
                     }
                 }
-
             }
 
             public void GoToEnemyAndAttack()
@@ -718,20 +710,26 @@ namespace SFDConsoleApplication1
                 //Game.CreateDialogue("ingotoenemy", bot); // DEBUG
                 //Game.ShowPopupMessage(target.GetDistance(bot.GetWorldPosition()).ToString());
                 bool close2Obj = false;
-                List<Area> objArea = new List<Area>();  
+                List<Area> Areas = new List<Area>();
+                List<IObject[]> objArea = new List<IObject[]>();
+
                 foreach (IObject obj in ledges)
                 {
                     if (FloorLvl(obj) == FloorLvl(bot))
                     {
-                        objArea.Add(new Area(obj.GetWorldPosition() - new Vector2(10, 10),
+                        Areas.Add(new Area(obj.GetWorldPosition() - new Vector2(10, 10),
                             target.m_enemy.GetWorldPosition() + new Vector2(10, 10)));
                     }
                 }
 
-                foreach (Area area in objArea)
+                foreach (Area area in Areas)
                 {
-                    if (area.Contains(new Area(target.m_enemy.GetWorldPosition(),
-                        target.m_enemy.GetWorldPosition())))
+                    objArea.Add(Game.GetObjectsByArea(area));
+                }
+
+                foreach (IObject[] objs in objArea)
+                {
+                    if (objs.Contains(target.m_enemy))
                     {
                         close2Obj = true;
                     }
@@ -775,129 +773,128 @@ namespace SFDConsoleApplication1
                     }
                     NearTarget = false;
                 }
+                else if (target.GetDistance(bot.GetWorldPosition()) < 15 && FloorLvl(target.m_enemy) == FloorLvl(bot))
+                {
+                    NearTarget = true;
+                    if (target.m_enemy.IsMeleeAttacking)
+                    {
+                        // Game.ShowPopupMessage("isMA");
+                        bot.ClearCommandQueue();
+                        bot.AddCommand(new PlayerCommand(block));
+                        bot.AddCommand(new PlayerCommand(punch, direction));
+                    }
+                    else if (target.m_enemy.IsJumpKicking)
+                    {
+                        // Game.ShowPopupMessage("isjumpkicking");
+                        bot.ClearCommandQueue();
+                        bot.AddCommand(new PlayerCommand(block, bot.FacingDirection));
+                    }
+                    else if (target.m_enemy.IsJumpAttacking)
+                    {
+                        // Game.ShowPopupMessage("isjumpattacking");
+                        bot.ClearCommandQueue();
+                        bot.AddCommand(new PlayerCommand(block));
+                    }
+                    else if (target.m_enemy.IsDiving)
+                    {
+                        // Game.ShowPopupMessage("isDiving");
+                    }
+                    else if (target.m_enemy.IsInMidAir)
+                    {
+                        // Game.ShowPopupMessage("inAir");
+                        bot.ClearCommandQueue();
+                        bot.AddCommand(new PlayerCommand(grab, target.m_enemy.UniqueID, 100));
+                    }
+                    else if (target.m_enemy.IsCrouching)
+                    {
+                        // Game.ShowPopupMessage("isCrouching");
+                        bot.ClearCommandQueue();
+                        bot.AddCommand(new PlayerCommand(kick));
+                    }
+                    else if (target.m_enemy.IsGrabbing)
+                    {
+                        // Game.ShowPopupMessage("isGrabbing");
+                        bot.ClearCommandQueue();
+                        bot.AddCommand(new PlayerCommand(roll, bot.FacingDirection / -1));
+                    }
+                    else if (target.m_enemy.IsKicking)
+                    {
+                        //  Game.ShowPopupMessage("isKicking");
+                        bot.ClearCommandQueue();
+                        bot.AddCommand(new PlayerCommand(block));
+                        bot.AddCommand(new PlayerCommand(punch, direction));
+                    }
+                    else if (target.m_enemy.IsManualAiming)
+                    {
+                        // Game.ShowPopupMessage("isAiming");
+                        bot.ClearCommandQueue();
+                        bot.AddCommand(new PlayerCommand(block));
+                        bot.AddCommand(new PlayerCommand(punch, direction));
+                    }
+                    else if (target.m_enemy.IsThrowing)
+                    {
+                        //Game.ShowPopupMessage("isThrowing");
+                        bot.ClearCommandQueue();
+                        bot.AddCommand(new PlayerCommand(block));
+                        bot.AddCommand(new PlayerCommand(punch, direction));
+                    }
+                    else if (target.m_enemy.IsDrawingWeapon)
+                    {
+                        // Game.ShowPopupMessage("isDrawingWeapon");
+                        bot.ClearCommandQueue();
+                        bot.AddCommand(new PlayerCommand(punch, direction));
+                    }
+                    else if (target.m_enemy.IsBlocking)
+                    {
+                        bot.ClearCommandQueue();
+                        bot.AddCommand(new PlayerCommand(grab));
+                    }
+                    else if (target.m_enemy.IsLedgeGrabbing)
+                    {
+                        bot.ClearCommandQueue();
+                        bot.AddCommand(new PlayerCommand(kick, direction));
+                    }
+                    else if (!target.m_enemy.IsDead || target != null)
+                    {
+                        //   Game.ShowPopupMessage("else");
+                        bot.ClearCommandQueue();
+                        if (new Random().Next(100) >= 20)
+                        {
+                            bot.AddCommand(new PlayerCommand(punch, direction));
+                        }
+                        else
+                        {
+                            if (new Random().Next(21) >= 10)
+                            {
+                                bot.ClearCommandQueue();
+                                bot.AddCommand(new PlayerCommand(jump, direction));
+                                bot.AddCommand(new PlayerCommand(punch, direction));
+                            }
+                            else
+                            {
+                                bot.ClearCommandQueue();
+                                bot.AddCommand(new PlayerCommand(jump, direction));
+                                bot.AddCommand(new PlayerCommand(kick, direction));
+                            }
+                        }
+                    }
 
-                //else if (target.GetDistance(bot.GetWorldPosition()) < 15 && FloorLvl(target.m_enemy) == FloorLvl(bot))
-                //{
-                //    NearTarget = true;
-                //    if (target.m_enemy.IsMeleeAttacking)
-                //    {
-                //        // Game.ShowPopupMessage("isMA");
-                //        bot.ClearCommandQueue();
-                //        bot.AddCommand(new PlayerCommand(block));
-                //        bot.AddCommand(new PlayerCommand(punch, direction));
-                //    }
-                //    else if (target.m_enemy.IsJumpKicking)
-                //    {
-                //        // Game.ShowPopupMessage("isjumpkicking");
-                //        bot.ClearCommandQueue();
-                //        bot.AddCommand(new PlayerCommand(block, bot.FacingDirection));
-                //    }
-                //    else if (target.m_enemy.IsJumpAttacking)
-                //    {
-                //        // Game.ShowPopupMessage("isjumpattacking");
-                //        bot.ClearCommandQueue();
-                //        bot.AddCommand(new PlayerCommand(block));
-                //    }
-                //    else if (target.m_enemy.IsDiving)
-                //    {
-                //        // Game.ShowPopupMessage("isDiving");
-                //    }
-                //    else if (target.m_enemy.IsInMidAir)
-                //    {
-                //        // Game.ShowPopupMessage("inAir");
-                //        bot.ClearCommandQueue();
-                //        bot.AddCommand(new PlayerCommand(grab, target.m_enemy.UniqueID, 100));
-                //    }
-                //    else if (target.m_enemy.IsCrouching)
-                //    {
-                //        // Game.ShowPopupMessage("isCrouching");
-                //        bot.ClearCommandQueue();
-                //        bot.AddCommand(new PlayerCommand(kick));
-                //    }
-                //    else if (target.m_enemy.IsGrabbing)
-                //    {
-                //        // Game.ShowPopupMessage("isGrabbing");
-                //        bot.ClearCommandQueue();
-                //        bot.AddCommand(new PlayerCommand(roll, bot.FacingDirection / -1));
-                //    }
-                //    else if (target.m_enemy.IsKicking)
-                //    {
-                //        //  Game.ShowPopupMessage("isKicking");
-                //        bot.ClearCommandQueue();
-                //        bot.AddCommand(new PlayerCommand(block));
-                //        bot.AddCommand(new PlayerCommand(punch, direction));
-                //    }
-                //    else if (target.m_enemy.IsManualAiming)
-                //    {
-                //        // Game.ShowPopupMessage("isAiming");
-                //        bot.ClearCommandQueue();
-                //        bot.AddCommand(new PlayerCommand(block));
-                //        bot.AddCommand(new PlayerCommand(punch, direction));
-                //    }
-                //    else if (target.m_enemy.IsThrowing)
-                //    {
-                //        //Game.ShowPopupMessage("isThrowing");
-                //        bot.ClearCommandQueue();
-                //        bot.AddCommand(new PlayerCommand(block));
-                //        bot.AddCommand(new PlayerCommand(punch, direction));
-                //    }
-                //    else if (target.m_enemy.IsDrawingWeapon)
-                //    {
-                //        // Game.ShowPopupMessage("isDrawingWeapon");
-                //        bot.ClearCommandQueue();
-                //        bot.AddCommand(new PlayerCommand(punch, direction));
-                //    }
-                //    else if (target.m_enemy.IsBlocking)
-                //    {
-                //        bot.ClearCommandQueue();
-                //        bot.AddCommand(new PlayerCommand(grab));
-                //    }
-                //    else if (target.m_enemy.IsLedgeGrabbing)
-                //    {
-                //        bot.ClearCommandQueue();
-                //        bot.AddCommand(new PlayerCommand(kick, direction));
-                //    }
-                //    else if (!target.m_enemy.IsDead || target != null)
-                //    {
-                //        //   Game.ShowPopupMessage("else");
-                //        bot.ClearCommandQueue();
-                //        if (new Random().Next(100) >= 20)
-                //        {
-                //            bot.AddCommand(new PlayerCommand(punch, direction));
-                //        }
-                //        else
-                //        {
-                //            if (new Random().Next(21) >= 10)
-                //            {
-                //                bot.ClearCommandQueue();
-                //                bot.AddCommand(new PlayerCommand(jump, direction));
-                //                bot.AddCommand(new PlayerCommand(punch, direction));
-                //            }
-                //            else
-                //            {
-                //                bot.ClearCommandQueue();
-                //                bot.AddCommand(new PlayerCommand(jump, direction));
-                //                bot.AddCommand(new PlayerCommand(kick, direction));
-                //            }
-                //        }
-                //    }
-
-                //    if (bot.IsHoldingPlayerInGrab)
-                //    {
-                //        bot.ClearCommandQueue();
-                //        if (new Random().Next(100) <= 70)
-                //        {
-                //            bot.ClearCommandQueue();
-                //            bot.AddCommand(new PlayerCommand(punch));
-                //        }
-                //        else
-                //        {
-                //            bot.ClearCommandQueue();
-                //            bot.AddCommand(new PlayerCommand(PlayerCommandType.Throw, -bot.FacingDirection, 200));
-                //            // 66% chance of non change FacingDirection
-                //        }
-                //    }
-                //}
+                    if (bot.IsHoldingPlayerInGrab)
+                    {
+                        bot.ClearCommandQueue();
+                        if (new Random().Next(100) <= 70)
+                        {
+                            bot.ClearCommandQueue();
+                            bot.AddCommand(new PlayerCommand(punch));
+                        }
+                        else
+                        {
+                            bot.ClearCommandQueue();
+                            bot.AddCommand(new PlayerCommand(PlayerCommandType.Throw, -bot.FacingDirection, 200));
+                            // 66% chance of non change FacingDirection
+                        }
+                    }
+                }
             }
 
             private void GameOver()
