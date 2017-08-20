@@ -1,18 +1,4 @@
-﻿using System;
-using System.Linq;
-using System.Collections;
-using System.Collections.Generic;
-using System.Text;
-using System.Text.RegularExpressions;
-using SFDGameScriptInterface;
-
-namespace SFDFramework
-{
-    class MultiStart : GameScriptInterface
-    {
-        public MultiStart() : base(null) { }
-
-        #region MultiStart
+﻿        #region MultiStart
         // SIGNATURE
         //            _____                            _____                            _____                    _____                  
         //           /\    \                          /\    \                          /\    \                  /\    \                 
@@ -343,5 +329,3 @@ namespace SFDFramework
             }
         }
         #endregion
-    }
-}
