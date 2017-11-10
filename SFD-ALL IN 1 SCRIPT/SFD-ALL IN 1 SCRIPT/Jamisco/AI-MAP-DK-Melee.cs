@@ -8,21 +8,167 @@ namespace SFDConsoleApplication1
     class AI_MAP_DK_Melee : GameScriptInterface
     {
         public AI_MAP_DK_Melee() : base(null) { }
-         #region AI_MAP_DK_Melee
+        #region MAP__DK_Melee_By_Venom ___ AI ---> The_Gunner__Vol 1.1 --- First Bot Implementation Into Map
+        //Script Status : Ready for Deployment
+// SIGNATURE
+//=================================================================================================================================   
+//            _____                            _____                            _____                            _____                  
+//           /\    \                          /\    \                          /\    \                          /\    \                 
+//          /::\    \                        /::\    \                        /::\____\                        /::\    \                
+//          \:::\    \                      /::::\    \                      /::::|   |                        \:::\    \               
+//           \:::\    \                    /::::::\    \                    /:::::|   |                         \:::\    \              
+//            \:::\    \                  /:::/\:::\    \                  /::::::|   |                          \:::\    \             
+//             \:::\    \                /:::/__\:::\    \                /:::/|::|   |                           \:::\    \            
+//             /::::\    \              /::::\   \:::\    \              /:::/ |::|   |                           /::::\    \           
+//    _____   /::::::\    \            /::::::\   \:::\    \            /:::/  |::|___|______            ____    /::::::\    \          
+//   /\    \ /:::/\:::\    \          /:::/\:::\   \:::\    \          /:::/   |::::::::\    \          /\   \  /:::/\:::\    \         
+//  /::\    /:::/  \:::\____\        /:::/  \:::\   \:::\____\        /:::/    |:::::::::\____\        /::\   \/:::/  \:::\____\        
+//  \:::\  /:::/    \::/    /        \::/    \:::\  /:::/    /        \::/    / ~~~~~/:::/    /        \:::\  /:::/    \::/    /        
+//   \:::\/:::/    / \/____/          \/____/ \:::\/:::/    /          \/____/      /:::/    /          \:::\/:::/    / \/____/         
+//    \::::::/    /                            \::::::/    /                       /:::/    /            \::::::/    /                  
+//     \::::/    /                              \::::/    /                       /:::/    /              \::::/____/                   
+//      \::/    /                               /:::/    /                       /:::/    /                \:::\    \                   
+//       \/____/                               /:::/    /                       /:::/    /                  \:::\    \                  
+//                                            /:::/    /                       /:::/    /                    \:::\    \                 
+//                                           /:::/    /                       /:::/    /                      \:::\____\                
+//                                           \::/    /                        \::/    /                        \::/    /                
+//                                            \/____/                          \/____/                          \/____/                 
+//                                                                                                                                      
+//                            _____                            _____                           _______                                  
+//                           /\    \                          /\    \                         /::\    \                                 
+//                          /::\    \                        /::\    \                       /::::\    \                                
+//                         /::::\    \                      /::::\    \                     /::::::\    \                               
+//                        /::::::\    \                    /::::::\    \                   /::::::::\    \                              
+//                       /:::/\:::\    \                  /:::/\:::\    \                 /:::/~~\:::\    \                             
+//                      /:::/__\:::\    \                /:::/  \:::\    \               /:::/    \:::\    \                            
+//                      \:::\   \:::\    \              /:::/    \:::\    \             /:::/    / \:::\    \                           
+//                    ___\:::\   \:::\    \            /:::/    / \:::\    \           /:::/____/   \:::\____\                          
+//                   /\   \:::\   \:::\    \          /:::/    /   \:::\    \         |:::|    |     |:::|    |                         
+//                  /::\   \:::\   \:::\____\        /:::/____/     \:::\____\        |:::|____|     |:::|    |                         
+//                  \:::\   \:::\   \::/    /        \:::\    \      \::/    /         \:::\    \   /:::/    /                          
+//                   \:::\   \:::\   \/____/          \:::\    \      \/____/           \:::\    \ /:::/    /                           
+//                    \:::\   \:::\    \               \:::\    \                        \:::\    /:::/    /                            
+//                     \:::\   \:::\____\               \:::\    \                        \:::\__/:::/    /                             
+//                      \:::\  /:::/    /                \:::\    \                        \::::::::/    /                              
+//                       \:::\/:::/    /                  \:::\    \                        \::::::/    /                               
+//                        \::::::/    /                    \:::\    \                        \::::/    /                                
+//                         \::::/    /                      \:::\____\                        \::/____/                                 
+//                          \::/    /                        \::/    /                         \/____/                                       
+//                           \/____/                          \/____/                                                                   
+//                                                                                                                                                                                                                                                                           
+//==================================================================================================================================
+//            _____                            _____                            _____                    _____                  
+//           /\    \                          /\    \                          /\    \                  /\    \                 
+//          /::\____\                        /::\    \                        /::\____\                /::\    \                
+//         /:::/    /                        \:::\    \                      /:::/    /               /::::\    \               
+//        /:::/    /                          \:::\    \                    /:::/    /               /::::::\    \              
+//       /:::/    /                            \:::\    \                  /:::/    /               /:::/\:::\    \             
+//      /:::/____/                              \:::\    \                /:::/    /               /:::/__\:::\    \            
+//     /::::\    \                              /::::\    \              /:::/    /               /::::\   \:::\    \           
+//    /::::::\____\________            ____    /::::::\    \            /:::/    /               /::::::\   \:::\    \          
+//   /:::/\:::::::::::\    \          /\   \  /:::/\:::\    \          /:::/    /               /:::/\:::\   \:::\    \         
+//  /:::/  |:::::::::::\____\        /::\   \/:::/  \:::\____\        /:::/____/               /:::/  \:::\   \:::\____\        
+//  \::/   |::|~~~|~~~~~             \:::\  /:::/    \::/    /        \:::\    \               \::/    \:::\  /:::/    /        
+//   \/____|::|   |                   \:::\/:::/    / \/____/          \:::\    \               \/____/ \:::\/:::/    /         
+//         |::|   |                    \::::::/    /                    \:::\    \                       \::::::/    /          
+//         |::|   |                     \::::/____/                      \:::\    \                       \::::/    /           
+//         |::|   |                      \:::\    \                       \:::\    \                      /:::/    /            
+//         |::|   |                       \:::\    \                       \:::\    \                    /:::/    /             
+//         |::|   |                        \:::\    \                       \:::\    \                  /:::/    /              
+//         \::|   |                         \:::\____\                       \:::\____\                /:::/    /               
+//          \:|   |                          \::/    /                        \::/    /                \::/    /                
+//           \|___|                           \/____/                          \/____/                  \/____/                 
+//                                                                                                                              
+//            _____                            _____                            _____                    _____                  
+//           /\    \                          /\    \                          /\    \                  /\    \                 
+//          /::\____\                        /::\    \                        /::\____\                /::\____\                
+//         /:::/    /                        \:::\    \                      /:::/    /               /:::/    /                
+//        /:::/    /                          \:::\    \                    /:::/    /               /:::/    /                 
+//       /:::/    /                            \:::\    \                  /:::/    /               /:::/    /                  
+//      /:::/____/                              \:::\    \                /:::/    /               /:::/    /                   
+//     /::::\    \                              /::::\    \              /:::/    /               /:::/    /                    
+//    /::::::\____\________            ____    /::::::\    \            /:::/    /               /:::/    /                     
+//   /:::/\:::::::::::\    \          /\   \  /:::/\:::\    \          /:::/    /               /:::/    /                      
+//  /:::/  |:::::::::::\____\        /::\   \/:::/  \:::\____\        /:::/____/               /:::/____/                       
+//  \::/   |::|~~~|~~~~~             \:::\  /:::/    \::/    /        \:::\    \               \:::\    \                       
+//   \/____|::|   |                   \:::\/:::/    / \/____/          \:::\    \               \:::\    \                      
+//         |::|   |                    \::::::/    /                    \:::\    \               \:::\    \                     
+//         |::|   |                     \::::/____/                      \:::\    \               \:::\    \                    
+//         |::|   |                      \:::\    \                       \:::\    \               \:::\    \                   
+//         |::|   |                       \:::\    \                       \:::\    \               \:::\    \                  
+//         |::|   |                        \:::\    \                       \:::\    \               \:::\    \                 
+//         \::|   |                         \:::\____\                       \:::\____\               \:::\____\                
+//          \:|   |                          \::/    /                        \::/    /                \::/    /                
+//           \|___|                           \/____/                          \/____/                  \/____/                 
+//                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 
+//===================================================================================================================================
+
         static Random rnd = new Random();
+        IPlayer host;
+        IDialogue lastDialogue;
+        IObjectText textObject;
+        IObjectTrigger button;
+        IObjectTimerTrigger timer;
+        int amountofBots;
 
         public void OnStartup()
         {
-            The_Gunner.CreateBots("The_Gunner");
+            Game.StartupSequenceEnabled = false;
+            timer = Game.CreateObject("TimerTrigger") as IObjectTimerTrigger;
+            textObject = Game.CreateObject("Text") as IObjectText;
+            host = Game.GetPlayers()[0];
+            lastDialogue = Game.CreateDialogue("Select Amount of Bots, You Have 10 Seconds", host, "", 10000);
+            button = Game.CreateObject("Button00", host.GetWorldPosition() + new Vector2(-5, 2)) as IObjectTrigger;
+            button.SetBodyType(BodyType.Static);
+            button.CustomID = "button";
+            button.SetScriptMethod("PressButton");
+            StartTimer();
+            foreach(IPlayer plyr in Game.GetPlayers())
+            {
+                if (plyr != host)
+                {
+                    plyr.SetInputEnabled(false);
+                }
+            }
         }
 
-        public abstract class Map_Details
+        public void PressButton(TriggerArgs btn)
         {
-            protected static List<IObject> ledges = new List<IObject>(Game.GetObjectsByCustomID("ledge"));
-            protected static List<IObject> ladders = new List<IObject>(Game.GetObjectsByCustomID("ladder"));
-            protected static List<Vector2> cliff = new List<Vector2> { };
-            protected static IObject[] XBarrel = Game.GetObjectsByName("BarrelExplosive");
-            protected static List<IObject> AllObjects = new List<IObject>();
+            if (btn.Sender == host)
+            {
+                amountofBots++;
+                textObject.SetText("Spawning: " + amountofBots + " Bots");
+                textObject.SetTextScale(2);
+                textObject.SetTextColor(Color.Magenta);
+                textObject.SetTextAlignment(TextAlignment.Middle);
+                textObject.SetWorldPosition(new Vector2(-40, 60));
+            }
+        }
+
+        public void StartTimer()
+        {
+            timer.SetIntervalTime(10000);
+            timer.SetRepeatCount(1);
+            timer.SetScriptMethod("BeginGame");
+            timer.Trigger();
+        }
+
+        public void BeginGame(TriggerArgs args)
+        {
+            Game.StartupSequenceEnabled = true;
+            timer.RemoveTriggerObject(timer);
+            button.Remove();
+            textObject.Remove();
+            The_Gunner.CreateBots("The_Gunner", amountofBots);
+        }
+         
+        public abstract class Map_Details // details about the map, the bot and enemy class inherit this class so we can know
+        {                                // info such as the floor level of the bot or enemy, also this is used to name
+            protected static List<IObject> ledges = new List<IObject>(Game.GetObjectsByCustomID("ledge"));// all possible objects
+            protected static List<IObject> ladders = new List<IObject>(Game.GetObjectsByCustomID("ladder"));// in the map
+            protected static List<Vector2> cliff = new List<Vector2> { }; // this class allows the bot to interact with world
+            protected static IObject[] XBarrel = Game.GetObjectsByName("BarrelExplosive"); // around him, like knowing where
+            protected static List<IObject> AllObjects = new List<IObject>();// things are etc
             protected static List<IObject> Objs_In_Path = new List<IObject>();
             public enum FloorLevel { one, two, three }
             #region floor levels
@@ -33,6 +179,7 @@ namespace SFDConsoleApplication1
 
             public Map_Details()
             {
+                
                 foreach (IObject obj in ledges)
                 {
                     AllObjects.Add(obj);
@@ -134,15 +281,22 @@ namespace SFDConsoleApplication1
             public PlayerCommandType reload = PlayerCommandType.Reload;
             #endregion
 
-            public static void CreateBots(string ID)
+            public static void CreateBots(string ID, int amountofBots)
             {
-                foreach (IObjectPlayerSpawnTrigger The_Gunner in Game.GetObjectsByCustomID(ID))
+                List<IObject> spawns = new List<IObject> (Game.GetObjectsByName("SpawnPlayer"));
+                IObject botSpawnPos = Game.GetSingleObjectByCustomID("The_Gunner");
+                for (int i = 1; i <= amountofBots; i++)
                 {
-                    new The_Gunner(The_Gunner.CreatePlayer(The_Gunner.GetWorldPosition()));
-                    //spawns are random location
+                  // if you want bot to spawn at normal spawm points type "//" on the second line, if you want to spawm them
+                   // if you want them to spawn using their default body locations in map editor type "//" on the first line
+                    new The_Gunner(Game.CreatePlayer(spawns[rnd.Next(spawns.Count())].GetWorldPosition()));
+                   new The_Gunner(Game.CreatePlayer(botSpawnPos.GetWorldPosition()));
                 }
+                
             }
-         
+             
+            // do not mess with code come here on, unless you know what your doing
+            // if you found a bug and need it fix, contact me with my skype at ... evilgenuis jamisco500
             public The_Gunner(IPlayer cpu)
             {
                 bot = cpu;
@@ -152,9 +306,13 @@ namespace SFDConsoleApplication1
                 {
                     foreach (IPlayer plyr in Game.GetPlayers())
                     {
-                        if (plyr != bot)
+                        if (!plyr.IsBot)
                         {
                             enemies.Add(new Enemy(plyr));
+                        }
+                        else
+                        {
+                            continue;
                         }
                     }
                 }
@@ -162,7 +320,11 @@ namespace SFDConsoleApplication1
                 {
                     foreach (IPlayer plyr in Game.GetPlayers())
                     {
-                        if (plyr.GetTeam() != GunnerTeam)
+                        if (plyr.IsBot)
+                        {
+                            continue;
+                        }
+                        else if (plyr.GetTeam() != GunnerTeam)
                         {
                             enemies.Add(new Enemy(plyr));
                         }
@@ -173,29 +335,38 @@ namespace SFDConsoleApplication1
                 //attck_updateEvent = Events.UpdateCallback.Start(Fire_OnUpdate, 200);
             } //constructor
 
-            public void Get_Enemies()
+            public void Get_Enemies() //made so that enemies keep update just in case, an enemy died or new play came in
             {
-                PlayerTeam botTeam = bot.GetTeam();
-                enemies.RemoveAll(x => x.m_enemy.IsDead);
-                enemies.RemoveAll(x => x.m_enemy == null);
-                foreach (IPlayer plyr in Game.GetPlayers())
+                if (bot != null)
                 {
-                    if (bot.UniqueID == plyr.UniqueID) continue;
-                    if (enemies.Find(x => x.m_enemy.UniqueID == plyr.UniqueID) != null) // if the player 
+                    PlayerTeam botTeam = bot.GetTeam();
+                    enemies.RemoveAll(x => x.m_enemy.IsDead || x.m_enemy == null);
+                    foreach (IPlayer plyr in Game.GetPlayers())
                     {
-                        continue;
-                    }
-                    else
-                    {
-                        if (botTeam == PlayerTeam.Independent || plyr.GetTeam() == PlayerTeam.Independent || botTeam != plyr.GetTeam())
+                        if (plyr.IsBot || plyr.UniqueID == bot.UniqueID)
                         {
-                            enemies.Add(new Enemy(plyr));
+                            continue;
+                        }
+                        else
+                        {
+                            if (enemies.Find(x => x.m_enemy.UniqueID == plyr.UniqueID) != null) // if the player 
+                            { // checks if the player is already an enemy ^ ... if not we go down
+                                continue;
+                            }
+                            else
+                            {
+                                if (botTeam == PlayerTeam.Independent || botTeam != plyr.GetTeam() ||
+                                    plyr.GetTeam() == PlayerTeam.Independent)
+                                {
+                                    enemies.Add(new Enemy(plyr));
+                                }
+                            }
                         }
                     }
                 }
             }
 
-            public bool FindNearEnemy()
+            public bool FindNearEnemy() // find the closest enemy
             {
                 Get_Enemies();
                 Vector2 GunnerPos = bot.GetWorldPosition();
@@ -232,10 +403,10 @@ namespace SFDConsoleApplication1
                 }
             }
 
-            public void MoveTo(Vector2 location, Vector2 tolerance)
-            {
-                List<Vector2> objs_inbot_flrlvl = new List<Vector2>();
-                foreach (IObject obj in Objs_In_Path)
+            public void MoveTo(Vector2 location, Vector2 tolerance) // use to move the bot, do not call any other movement commands
+            {                                                      // this code tells the bot when it comes close to objects
+                List<Vector2> objs_inbot_flrlvl = new List<Vector2>(); // its psuedo but it works, improvements will be made in
+                foreach (IObject obj in Objs_In_Path)                  //              The_Gunner__Vol 1.2 or above
                 {
                     if (FloorLvl(obj) == FloorLvl(bot))
                     {
@@ -304,14 +475,13 @@ namespace SFDConsoleApplication1
                             bot.ClearCommandQueue();
                             bot.AddCommand(new PlayerCommand(PlayerCommandType.DropPlatform));
                         }
-                        else if (target.m_enemy.IsTakingCover)
+                        else if (bot.IsTakingCover)
                         {
                             bot.ClearCommandQueue();
                             bot.AddCommand(new PlayerCommand(roll, bot.FacingDirection * -1));
                         }
                         else
                         {
-                            Game.CreateDialogue("jumpoverobj", bot, "", 200);
                             bot.ClearCommandQueue();
                             bot.AddCommand(new PlayerCommand(move2Pos, location + tolerance));
                             bot.AddCommand(new PlayerCommand(sprint));
@@ -325,7 +495,7 @@ namespace SFDConsoleApplication1
                             bot.ClearCommandQueue();
                             bot.AddCommand(new PlayerCommand(PlayerCommandType.DropPlatform));
                         }
-                        else if (target.m_enemy.IsTakingCover)
+                        else if (bot.IsTakingCover)
                         {
                             bot.ClearCommandQueue();
                             bot.AddCommand(new PlayerCommand(move2Pos, new Vector2(5, 0) * bot.FacingDirection));
@@ -334,7 +504,6 @@ namespace SFDConsoleApplication1
                         else
                         {
                             bot.ClearCommandQueue();
-                            Game.CreateDialogue("obj far away", bot, "", 200);
                             bot.AddCommand(new PlayerCommand(PlayerCommandType.StopClimb));
                             bot.AddCommand(new PlayerCommand(PlayerCommandType.FaceAt, location));
                             bot.AddCommand(new PlayerCommand(move2Pos, location + tolerance));
@@ -349,7 +518,7 @@ namespace SFDConsoleApplication1
                         bot.ClearCommandQueue();
                         bot.AddCommand(new PlayerCommand(PlayerCommandType.DropPlatform));
                     }
-                    else if (target.m_enemy.IsTakingCover)
+                    else if (bot.IsTakingCover)
                     {
                         bot.ClearCommandQueue();
                         bot.AddCommand(new PlayerCommand(roll, bot.FacingDirection * -1));
@@ -363,12 +532,12 @@ namespace SFDConsoleApplication1
                         bot.AddCommand(new PlayerCommand(sprint));
                     }
                 }
-            }
+            } 
 
-            public void GoToFloor(FloorLevel floorLvl2Go2)
-            {
-                List<Vector2> ledge_inbot_flrlvl = new List<Vector2>();
-                List<Vector2> ladder_inbot_flrlvl = new List<Vector2>();
+            public void GoToFloor(FloorLevel floorLvl2Go2) // use to get the bot to other floor levels but using ladders,
+            {                                             // or jumping on objects that are within certain proximity
+                List<Vector2> ledge_inbot_flrlvl = new List<Vector2>();// testing shows the code is quite effective
+                List<Vector2> ladder_inbot_flrlvl = new List<Vector2>();// but proximity detectance to objects  needs reworking
                 float botX;
                 float objX;
                 float dstnce2Obj;
@@ -389,7 +558,7 @@ namespace SFDConsoleApplication1
                         {
                             float distance1 = GetDistance(bot.GetWorldPosition(), ledge_inbot_flrlvl[i]);
                             float distance2 = GetDistance(bot.GetWorldPosition(), ledge_inbot_flrlvl[j]);
-                            if (distance1 > distance2)
+                            if (distance1 >= distance2)
                             {
                                 Vector2 tempvec = ledge_inbot_flrlvl[i];
                                 ledge_inbot_flrlvl[i] = ledge_inbot_flrlvl[j];
@@ -423,49 +592,77 @@ namespace SFDConsoleApplication1
 
                     if (floorLvl2Go2 > FloorLvl(bot))
                     {
-                        if (GetDistance(bot.GetWorldPosition(), ledge_inbot_flrlvl.First()) <=
-                            GetDistance(bot.GetWorldPosition(), ladder_inbot_flrlvl.First()))
+                        if (ledge_inbot_flrlvl.Count > 0)
                         {
-                            botX = Math.Abs(bot.GetWorldPosition().X);
-                            objX = Math.Abs(ledge_inbot_flrlvl.First().X);
+                            if (GetDistance(bot.GetWorldPosition(), ledge_inbot_flrlvl.First()) <=
+                                GetDistance(bot.GetWorldPosition(), ladder_inbot_flrlvl.First()))
+                            {
+                                botX = Math.Abs(bot.GetWorldPosition().X);
+                                objX = Math.Abs(ledge_inbot_flrlvl.First().X);
 
-                            if (botX > objX)
-                            {
-                                dstnce2Obj = botX - objX;
-                            }
-                            else if (objX > botX)
-                            {
-                                dstnce2Obj = objX - botX;
+                                if (botX > objX)
+                                {
+                                    dstnce2Obj = botX - objX;
+                                }
+                                else if (objX > botX)
+                                {
+                                    dstnce2Obj = objX - botX;
+                                }
+                                else
+                                {
+                                    dstnce2Obj = botX - objX;
+                                }
+
+                                if (dstnce2Obj < 20 && dstnce2Obj > 10 || bot.IsLedgeGrabbing && dstnce2Obj < 10)
+                                {
+                                    if (!bot.IsLedgeGrabbing)
+                                    {
+                                        bot.ClearCommandQueue();
+                                        bot.AddCommand(new PlayerCommand(move2Pos, ledge_inbot_flrlvl.First()));
+                                        bot.AddCommand(new PlayerCommand(sprint));
+                                        bot.AddCommand(new PlayerCommand(jump));
+                                    }
+
+                                    if (bot.IsLedgeGrabbing)
+                                    {
+                                        bot.ClearCommandQueue();
+                                        bot.AddCommand(new PlayerCommand(move2Pos, target.m_enemy.GetWorldPosition()));
+                                        bot.AddCommand(new PlayerCommand(jump));
+                                        bot.AddCommand(new PlayerCommand(sprint));
+                                    }
+                                }
+                                else
+                                {
+                                    MoveTo(ledge_inbot_flrlvl.First(), new Vector2(20, 0) *
+                                        bot.FacingDirection);
+                                }
                             }
                             else
                             {
-                                dstnce2Obj = botX - objX;
-                            }
+                                botX = Math.Abs(bot.GetWorldPosition().X);
+                                objX = Math.Abs(ladder_inbot_flrlvl.First().X);
 
-                            if (dstnce2Obj < 20 && dstnce2Obj > 10 || bot.IsLedgeGrabbing && dstnce2Obj < 10)
-                            {
-                                if (!bot.IsLedgeGrabbing)
+                                if (botX >= objX)
                                 {
-                                    Game.CreateDialogue("jump2ledge", bot, "", 1000);
-                                    bot.ClearCommandQueue();
-                                    bot.AddCommand(new PlayerCommand(move2Pos, ledge_inbot_flrlvl.First()));
-                                    bot.AddCommand(new PlayerCommand(sprint));
-                                    bot.AddCommand(new PlayerCommand(jump));
+                                    dstnce2Obj = botX - objX;
+                                }
+                                else
+                                {
+                                    dstnce2Obj = objX - botX;
                                 }
 
-                                if (bot.IsLedgeGrabbing)
+                                if (dstnce2Obj < 5)
                                 {
                                     bot.ClearCommandQueue();
-                                    bot.AddCommand(new PlayerCommand(move2Pos, target.m_enemy.GetWorldPosition()));
-                                    bot.AddCommand(new PlayerCommand(jump));
+                                    bot.AddCommand(new PlayerCommand(move2Pos, ladder_inbot_flrlvl.First()));
                                     bot.AddCommand(new PlayerCommand(sprint));
+                                    bot.AddCommand(new PlayerCommand(jump));
+                                    bot.AddCommand(new PlayerCommand(PlayerCommandType.StartClimbUp));
                                 }
-                            }
-                            else
-                            {
-                                Game.CreateDialogue("positioning", bot, "", 1000);
-                                MoveTo(ledge_inbot_flrlvl.First(), new Vector2(20, 0) *
-                                    bot.FacingDirection);
+                                else
+                                {
+                                    MoveTo(ladder_inbot_flrlvl.First(), new Vector2(0, 0));
+                                }
                             }
                         }
                         else
@@ -484,7 +681,6 @@ namespace SFDConsoleApplication1
 
                             if (dstnce2Obj < 5)
                             {
-                                Game.CreateDialogue("jump 2 ladder", bot, "", 500);
                                 bot.ClearCommandQueue();
                                 bot.AddCommand(new PlayerCommand(move2Pos, ladder_inbot_flrlvl.First()));
                                 bot.AddCommand(new PlayerCommand(sprint));
@@ -538,10 +734,9 @@ namespace SFDConsoleApplication1
                                 dstnce2Obj = objX - botX;
                             }
 
-                            if (dstnce2Obj > 6)
+                            if (dstnce2Obj > 8)
                             {
                                 bot.ClearCommandQueue();
-                                Game.CreateDialogue("move to drop", bot, "", 200);
                                 bot.AddCommand(new PlayerCommand(PlayerCommandType.DropPlatform));
                             }
                             else
@@ -549,15 +744,20 @@ namespace SFDConsoleApplication1
                                 MoveTo(objs_inbot_flrlvl.First(), new Vector2(15, 0) * bot.FacingDirection);
                             }
                         }
+                        else
+                        {
+                            bot.ClearCommandQueue();
+                            bot.AddCommand(new PlayerCommand(PlayerCommandType.DropPlatform));
+                        }
                     }
                 }
             }
 
-            public void StayWithTartget(bool isClimbing, bool close2Obj)
-            {
-                List<Vector2> ledge_inbot_flrlvl = new List<Vector2>();
-                List<Vector2> ladder_inbot_flrlvl = new List<Vector2>();
-                foreach (IObject obj in ledges)
+            public void StayWithTartget(bool isClimbing, bool close2Obj) // use when the target is in THESAME LEVEL as the bot
+            {                                                            // but there is a significant differene in Y Positioning
+                List<Vector2> ledge_inbot_flrlvl = new List<Vector2>();// for ex, enemy might be in ladder or on an obj that 
+                List<Vector2> ladder_inbot_flrlvl = new List<Vector2>();// require bot to climb, jump etc, this code as example,
+                foreach (IObject obj in ledges)                         // as to why move method should be reworked
                 {
                     if (FloorLvl(obj) == FloorLvl(bot))
                     {
@@ -605,10 +805,8 @@ namespace SFDConsoleApplication1
 
                 if (isClimbing == true)
                 {
-                    Game.ShowPopupMessage(GetDistance(bot.GetWorldPosition(),target.m_enemy.GetWorldPosition()).ToString());
                     if (GetDistance(bot.GetWorldPosition(), target.m_enemy.GetWorldPosition()) <= 25)
                     {
-                        Game.CreateDialogue("ic_jump attack", bot, "", 200);
                         int i = rnd.Next(1, 2);
                         if (i == 1)
                         {
@@ -629,7 +827,6 @@ namespace SFDConsoleApplication1
                     }
                     else if (GetDistance(bot.GetWorldPosition(), target.m_enemy.GetWorldPosition()) > 25)
                     {
-                        Game.CreateDialogue("ic_goto", bot, "", 200);
                         MoveTo(target.m_enemy.GetWorldPosition(), Vector2.Zero);
                         float botX = Math.Abs(bot.GetWorldPosition().X);
                         float objX = Math.Abs(ladder_inbot_flrlvl.First().X);
@@ -677,7 +874,6 @@ namespace SFDConsoleApplication1
                     {
                         dstnce2Obj = botX - objX;
                     }
-                    Game.ShowPopupMessage(dstnce2Obj.ToString());
 
                     if (dstnce2Obj < 20 && dstnce2Obj > 10 || bot.IsLedgeGrabbing && dstnce2Obj < 10)
                     {
@@ -705,11 +901,9 @@ namespace SFDConsoleApplication1
                 }
             }
 
-            public void GoToEnemyAndAttack()
-            {
-                //Game.CreateDialogue("ingotoenemy", bot); // DEBUG
-                //Game.ShowPopupMessage(target.GetDistance(bot.GetWorldPosition()).ToString());
-                bool close2Obj = false;
+            public void GoToEnemyAndAttack() // primary method for calling all movement methods and also kicking some ass
+            {                               // might be redentant as in all other methods could be called from update method
+                bool close2Obj = false;    // futher testing required
                 List<Area> Areas = new List<Area>();
                 List<IObject[]> objArea = new List<IObject[]>();
 
@@ -778,69 +972,55 @@ namespace SFDConsoleApplication1
                     NearTarget = true;
                     if (target.m_enemy.IsMeleeAttacking)
                     {
-                        // Game.ShowPopupMessage("isMA");
                         bot.ClearCommandQueue();
                         bot.AddCommand(new PlayerCommand(block));
                         bot.AddCommand(new PlayerCommand(punch, direction));
                     }
                     else if (target.m_enemy.IsJumpKicking)
                     {
-                        // Game.ShowPopupMessage("isjumpkicking");
                         bot.ClearCommandQueue();
                         bot.AddCommand(new PlayerCommand(block, bot.FacingDirection));
                     }
                     else if (target.m_enemy.IsJumpAttacking)
                     {
-                        // Game.ShowPopupMessage("isjumpattacking");
                         bot.ClearCommandQueue();
                         bot.AddCommand(new PlayerCommand(block));
                     }
-                    else if (target.m_enemy.IsDiving)
-                    {
-                        // Game.ShowPopupMessage("isDiving");
-                    }
                     else if (target.m_enemy.IsInMidAir)
                     {
-                        // Game.ShowPopupMessage("inAir");
                         bot.ClearCommandQueue();
                         bot.AddCommand(new PlayerCommand(grab, target.m_enemy.UniqueID, 100));
                     }
                     else if (target.m_enemy.IsCrouching)
                     {
-                        // Game.ShowPopupMessage("isCrouching");
                         bot.ClearCommandQueue();
                         bot.AddCommand(new PlayerCommand(kick));
                     }
                     else if (target.m_enemy.IsGrabbing)
                     {
-                        // Game.ShowPopupMessage("isGrabbing");
                         bot.ClearCommandQueue();
                         bot.AddCommand(new PlayerCommand(roll, bot.FacingDirection / -1));
                     }
                     else if (target.m_enemy.IsKicking)
                     {
-                        //  Game.ShowPopupMessage("isKicking");
                         bot.ClearCommandQueue();
                         bot.AddCommand(new PlayerCommand(block));
                         bot.AddCommand(new PlayerCommand(punch, direction));
                     }
                     else if (target.m_enemy.IsManualAiming)
                     {
-                        // Game.ShowPopupMessage("isAiming");
                         bot.ClearCommandQueue();
                         bot.AddCommand(new PlayerCommand(block));
                         bot.AddCommand(new PlayerCommand(punch, direction));
                     }
                     else if (target.m_enemy.IsThrowing)
                     {
-                        //Game.ShowPopupMessage("isThrowing");
                         bot.ClearCommandQueue();
                         bot.AddCommand(new PlayerCommand(block));
                         bot.AddCommand(new PlayerCommand(punch, direction));
                     }
                     else if (target.m_enemy.IsDrawingWeapon)
                     {
-                        // Game.ShowPopupMessage("isDrawingWeapon");
                         bot.ClearCommandQueue();
                         bot.AddCommand(new PlayerCommand(punch, direction));
                     }
@@ -856,7 +1036,6 @@ namespace SFDConsoleApplication1
                     }
                     else if (!target.m_enemy.IsDead || target != null)
                     {
-                        //   Game.ShowPopupMessage("else");
                         bot.ClearCommandQueue();
                         if (new Random().Next(100) >= 20)
                         {
@@ -891,13 +1070,12 @@ namespace SFDConsoleApplication1
                         {
                             bot.ClearCommandQueue();
                             bot.AddCommand(new PlayerCommand(PlayerCommandType.Throw, -bot.FacingDirection, 200));
-                            // 66% chance of non change FacingDirection
                         }
                     }
                 }
-            }
+            } 
 
-            private void GameOver()
+            private void GameOver() //Since this is a custom map, it needs its own gameover method
             {
                 IPlayer winner = null;
 
@@ -922,32 +1100,45 @@ namespace SFDConsoleApplication1
                     Game.SetGameOver("NO WINNER, BETTER LUCK NEXT TIME");
                 }
                 bot.AddCommand(new PlayerCommand(PlayerCommandType.StopAll));
-            }
+            } 
 
-            private void attck_OnUpdate(float elapsed)
-            {
-                if (target != null && target.m_enemy.IsDead)
+            private void attck_OnUpdate(float elapsed) // update method, this is very psuedo but i see a major rework in the future
+            {                                         // every .2 seconds this method is call, this is the bot heart, this method
+                if (target != null && target.m_enemy.IsDead && bot != null && !bot.IsDead)// tell the bot what to do
                 {
                     Game.CreateDialogue("Target Eliminated!", bot);
                     enemies.Remove(target);
                     target = null;
                 }
 
-                if (FindNearEnemy() && !bot.IsDead && bot != null)
+                if (bot != null && !bot.IsDead)
                 {
-                    GoToEnemyAndAttack();
+                    if (bot.IsBurning)
+                    {
+                        bot.ClearCommandQueue();
+                        bot.AddCommand(new PlayerCommand(roll));
+                    }
+
+                    if (FindNearEnemy())
+                    {
+                        GoToEnemyAndAttack();
+                    }
+                    else if (!FindNearEnemy())
+                    {
+                        GameOver();
+                    }
                 }
-                else if (!FindNearEnemy())
+                else if (bot == null || bot.IsDead)
                 {
-                    GameOver();
+                    bot.Remove();
                 }
             }
         }
 
-        public class Enemy : Map_Details
-        {
-            public IPlayer m_enemy;
-
+        public class Enemy : Map_Details // the enemy class, we store all info about enemy here. all info must be some how 
+        {                               // related to bot, for example, the get distance, gets distance between the bot and
+            public IPlayer m_enemy;    // the enemy, this is used in the gotoenemyandattack method so the bot knows when to 
+                                      // attack or movetowards the method
             public Enemy(IPlayer enemy)
             {
                 m_enemy = enemy;
